@@ -13,7 +13,6 @@
 		4EF830A21975952B00C5F0EE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830A11975952B00C5F0EE /* ViewController.swift */; };
 		4EF830A41975952B00C5F0EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830A31975952B00C5F0EE /* AppDelegate.swift */; };
 		4EF830A61975952B00C5F0EE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830A51975952B00C5F0EE /* Images.xcassets */; };
-		4EF830A91975952B00C5F0EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830A71975952B00C5F0EE /* Main.storyboard */; };
 		4EF830B51975952B00C5F0EE /* AsyncExample_OS_XTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830B41975952B00C5F0EE /* AsyncExample_OS_XTests.swift */; };
 		4EF830CB1975954B00C5F0EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830CA1975954B00C5F0EE /* AppDelegate.swift */; };
 		4EF830CD1975954B00C5F0EE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830CC1975954B00C5F0EE /* ViewController.swift */; };
@@ -22,6 +21,7 @@
 		4EF830DE1975954B00C5F0EE /* AsyncExample_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830DD1975954B00C5F0EE /* AsyncExample_iOSTests.swift */; };
 		4EF830E71975956F00C5F0EE /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* Async.swift */; };
 		4EF830E81975965D00C5F0EE /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* Async.swift */; };
+		BEE974B019A8D8D3006B1208 /* Application.xib in Resources */ = {isa = PBXBuildFile; fileRef = BEE974AF19A8D8D3006B1208 /* Application.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +97,7 @@
 		4EF830DC1975954B00C5F0EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EF830DD1975954B00C5F0EE /* AsyncExample_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncExample_iOSTests.swift; sourceTree = "<group>"; };
 		4EF830E61975956F00C5F0EE /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
+		BEE974AF19A8D8D3006B1208 /* Application.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Application.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +163,7 @@
 				4EF830A51975952B00C5F0EE /* Images.xcassets */,
 				4EF830A71975952B00C5F0EE /* Main.storyboard */,
 				4EF8309D1975952B00C5F0EE /* Supporting Files */,
+				BEE974AF19A8D8D3006B1208 /* Application.xib */,
 			);
 			path = "AsyncExample OS X";
 			sourceTree = "<group>";
@@ -367,8 +369,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEE974B019A8D8D3006B1208 /* Application.xib in Resources */,
 				4EF830A61975952B00C5F0EE /* Images.xcassets in Resources */,
-				4EF830A91975952B00C5F0EE /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -588,7 +590,7 @@
 				);
 				INFOPLIST_FILE = "AsyncExample OS X/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "AsyncExample OS X";
 				SDKROOT = macosx;
 			};
@@ -603,7 +605,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INFOPLIST_FILE = "AsyncExample OS X/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "AsyncExample OS X";
 				SDKROOT = macosx;
 			};
