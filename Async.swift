@@ -107,7 +107,7 @@ public class Async {
 		// See Async.async() for comments
 		let _block = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, block)
 		dispatch_after(time, queue, _block)
-		return DispatchBlock(_block)
+		return DispatchBlock(_block, queue)
 	}
 	class func main(#after: Double, block: dispatch_block_t) -> DispatchBlock {
 		return Async.after(after, block: block, inQueue: GCD.mainQueue())
@@ -134,43 +134,56 @@ public class Async {
 
 
 // Wrapper since non-nominal type 'dispatch_block_t' cannot be extended (extension dispatch_block_t {})
+private struct BlockAndQueue {
+    private var block: dispatch_block_t
+    private var queue: dispatch_queue_t
+    init(_ block:dispatch_block_t, _ queue:dispatch_queue_t) {
+        self.block = block
+        self.queue = queue
+    }
+}
+
 public struct DispatchBlock {
 	
-	private let block: dispatch_block_t
+    private var chainList:[BlockAndQueue] = []
 	
-	init(_ block: dispatch_block_t) {
-		self.block = block
+	init(_ block: dispatch_block_t, _ queue: dispatch_queue_t) {
+		self.chainList = [BlockAndQueue(block, queue)]
 	}
-
+    private var block:BlockAndQueue { get {
+            return chainList[0]
+        }
+    }
 
 	/* dispatch_async() */
 	
-	private func chain(block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> DispatchBlock {
+	private mutating func chain(block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> DispatchBlock {
 		// See Async.async() for comments
-		let _chainingBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, chainingBlock)
-		dispatch_block_notify(self.block, queue, _chainingBlock)
-		return DispatchBlock(_chainingBlock)
+        self.chainList.append(BlockAndQueue(chainingBlock, queue))
+		//let _chainingBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, chainingBlock)
+		//dispatch_block_notify(self.block, queue, _chainingBlock)
+		return self
 	}
 	
-	func main(chainingBlock: dispatch_block_t) -> DispatchBlock {
+	mutating func main(chainingBlock: dispatch_block_t) -> DispatchBlock {
 		return chain(block: chainingBlock, runInQueue: GCD.mainQueue())
 	}
-	func userInteractive(chainingBlock: dispatch_block_t) -> DispatchBlock {
+	mutating func userInteractive(chainingBlock: dispatch_block_t) -> DispatchBlock {
 		return chain(block: chainingBlock, runInQueue: GCD.userInteractiveQueue())
 	}
-	func userInitiated(chainingBlock: dispatch_block_t) -> DispatchBlock {
+	mutating func userInitiated(chainingBlock: dispatch_block_t) -> DispatchBlock {
 		return chain(block: chainingBlock, runInQueue: GCD.userInitiatedQueue())
 	}
-	func default_(chainingBlock: dispatch_block_t) -> DispatchBlock {
+	mutating func default_(chainingBlock: dispatch_block_t) -> DispatchBlock {
 		return chain(block: chainingBlock, runInQueue: GCD.defaultQueue())
 	}
-	func utility(chainingBlock: dispatch_block_t) -> DispatchBlock {
+	mutating func utility(chainingBlock: dispatch_block_t) -> DispatchBlock {
 		return chain(block: chainingBlock, runInQueue: GCD.utilityQueue())
 	}
-	func background(chainingBlock: dispatch_block_t) -> DispatchBlock {
+	mutating func background(chainingBlock: dispatch_block_t) -> DispatchBlock {
 		return chain(block: chainingBlock, runInQueue: GCD.backgroundQueue())
 	}
-	func customQueue(queue: dispatch_queue_t, chainingBlock: dispatch_block_t) -> DispatchBlock {
+	mutating func customQueue(queue: dispatch_queue_t, chainingBlock: dispatch_block_t) -> DispatchBlock {
 		return chain(block: chainingBlock, runInQueue: queue)
 	}
 
@@ -222,11 +235,11 @@ public struct DispatchBlock {
 
 
 	/* cancel */
-
+/*
 	func cancel() {
 		dispatch_block_cancel(block)
 	}
-	
+*/
 
 	/* wait */
 
