@@ -1,5 +1,7 @@
-Async
+AsyncLite
 =====
+
+Subset of [Async]( https://github.com/duemunk/Async) rewritten for iOS7 and OS X 10.9 Compatibility. Unless you are targeting iOS7 or 10.9 I recommend you stick to the full Async for more features and possibly better performance. 
 
 Syntactic sugar in Swift for asynchronous dispatches in Grand Central Dispatch ([GCD](https://developer.apple.com/library/prerelease/ios/documentation/Performance/Reference/GCD_libdispatch_Ref/index.html))
 
@@ -28,14 +30,14 @@ Async.background {
 2. Less code indentation
 
 ### Support
-OS X 10.10+ and iOS 8.0+
+OS X 10.9+ and iOS 7+
 
 ### Things you can do
 Supports the modern queue classes:
 ```swift
 Async.main {}
-Async.userInteractive {}
-Async.userInitiated {}
+Async.userInteractive {} // Remapped to high priority
+Async.userInitiated {} // Remapped to high priority
 Async.default_ {}
 Async.utility {}
 Async.background {}
@@ -89,24 +91,7 @@ Async.main(after: seconds) {
 }
 ```
 
-Cancel blocks that aren't already dispatched:
-```swift
-// Cancel blocks not yet dispatched
-let block1 = Async.background {
-	// Heavy work
-	for i in 0...1000 {
-		println("A \(i)")
-	}
-}
-let block2 = block1.background {
-	println("B – shouldn't be reached, since cancelled")
-}
-Async.main { 
-	// Cancel async to allow block1 to begin
-	block1.cancel() // First block is _not_ cancelled
-	block2.cancel() // Second block _is_ cancelled
-}
-```
+Cancel blocks that aren't already dispatched: NOT SUPPORTED IN AsyncLite - Full Async only. 
 
 Wait for block to finish – an ease way to continue on current queue after background task:
 ```swift
@@ -120,29 +105,19 @@ block.wait()
 ```
 
 ### How does it work
-The way it work is by using the new notification API for GCD introduced in OS X 10.10 and iOS 8. Each chaining block is called when the previous queue has finished.
+It creates a dispatch group for each block and uses that to notify other blocks to run. In places blocks are wrapped in other blocks to explitly notify. 
 ```swift
-let previousBlock = {}
-let chainingBlock = {}
-let dispatchQueueForChainingBlock = ...
-
-// Use the GCD API to extend the blocks
-let _previousBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, previousBlock)
-let _chainingBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, chainingBlock)
-
-// Use the GCD API to call back when finishing the "previous" block
-dispatch_block_notify(_previousBlock, dispatchQueueForChainingBlock, _chainingBlock)
+// To Be Completed
 ```
 
 ### Known improvements
 ```default``` is a keyword. Workaround used: ```default_```. Could use [this](http://ericasadun.com/2014/08/21/swift-when-cocoa-and-swift-collide/) trick shown be Erica Sadun, i.e. ```class func `default`() -> {}``` but it results in this use ```Async.`default`{}```
 
-The ```dispatch_block_t``` can't be extended. Workaround used: Wrap ```dispatch_block_t``` in a struct that takes the block as a property.
-
 ### License
 The MIT License (MIT)
 
 Copyright (c) 2014 Tobias Due Munk
+Copyright (c) 2014 Joseph Lord (Human Friendly Ltd.)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
