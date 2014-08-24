@@ -145,7 +145,7 @@ public class Async {
 public class DispatchBlock {
     
     private let dgroup: dispatch_group_t = dispatch_group_create()
-    private var isCancelled:Int32 = 0
+    private var isCancelled = false
 
 	/* dispatch_async() */
 	
@@ -163,16 +163,10 @@ public class DispatchBlock {
     
     private func cancellable(blockToWrap: dispatch_block_t) -> dispatch_block_t {
         return {
-            if self.hasBeenCancelled() {
-                print("-")
+            if !self.isCancelled {
                 blockToWrap()
-            } else { print("C") }
+            }
         }
-    }
-    
-    private func hasBeenCancelled()->Bool {
-        //return OSAtomicCompareAndSwap32(0, 0, &isCancelled)
-        return isCancelled == 0
     }
 	
 	func main(chainingBlock: dispatch_block_t) -> DispatchBlock {
@@ -250,8 +244,7 @@ public class DispatchBlock {
         // I don't think that syncronisation is necessary. Any combination of multiple access
         // should result in zero or negagive. If the read happens with a positive value during
         // write that is just like if it read before the write. No values are invalid as such.
-        print("+++")
-        OSAtomicIncrement32Barrier(&isCancelled)
+        isCancelled = true
     }
 
 	/* wait */
