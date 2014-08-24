@@ -162,8 +162,9 @@ public class DispatchBlock {
 	}
     
     private func cancellable(blockToWrap: dispatch_block_t) -> dispatch_block_t {
+        weak var weakSelf = self
         return {
-            if !self.isCancelled {
+            if weakSelf == nil || !weakSelf!.isCancelled {
                 blockToWrap()
             }
         }
