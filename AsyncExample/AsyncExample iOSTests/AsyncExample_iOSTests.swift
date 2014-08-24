@@ -24,19 +24,19 @@ class AsyncExample_iOSTests: XCTestCase {
 	
 	/* GCD */
 	
-	func testGCD() {
-		
-		let expectation = expectationWithDescription("Expected after time")
-		
-		let qos = QOS_CLASS_BACKGROUND
-		let queue = dispatch_get_global_queue(+qos, 0)
-		dispatch_async(queue) {
-			let currentQos = qos_class_self()
-            //		XCTAssertEqual(+currentQos, +qos, "On \(currentQos.description) (expected \(qos.description))")
-			expectation.fulfill()
-		}
-		waitForExpectationsWithTimeout(1, handler: nil)
-	}
+//	func testGCD() {
+//
+//		let expectation = expectationWithDescription("Expected after time")
+//
+//		let qos = QOS_CLASS_BACKGROUND
+//		let queue = dispatch_get_global_queue(+qos, 0)
+//		dispatch_async(queue) {
+//			let currentQos = qos_class_self()
+//            //		XCTAssertEqual(+currentQos, +qos, "On \(currentQos.description) (expected \(qos.description))")
+//			expectation.fulfill()
+//		}
+//		waitForExpectationsWithTimeout(1, handler: nil)
+//	}
 	
 	
 	/* dispatch_async() */
