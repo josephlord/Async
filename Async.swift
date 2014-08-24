@@ -142,14 +142,10 @@ public class Async {
 
 
 // Wrapper since non-nominal type 'dispatch_block_t' cannot be extended (extension dispatch_block_t {})
-public struct DispatchBlock {
-	
-    private class BlockState {
-        private var notCancelled = true
-    }
+public class DispatchBlock {
     
     private let dgroup: dispatch_group_t = dispatch_group_create()
-    private var isCancelled = false
+    private var isCancelled:Int32 = 0
 
 	/* dispatch_async() */
 	
@@ -166,10 +162,17 @@ public struct DispatchBlock {
 	}
     
     private func cancellable(blockToWrap: dispatch_block_t) -> dispatch_block_t {
-        return { if !self.isCancelled {
+        return {
+            if self.hasBeenCancelled() {
+                print("-")
                 blockToWrap()
-            }
+            } else { print("C") }
         }
+    }
+    
+    private func hasBeenCancelled()->Bool {
+        //return OSAtomicCompareAndSwap32(0, 0, &isCancelled)
+        return isCancelled == 0
     }
 	
 	func main(chainingBlock: dispatch_block_t) -> DispatchBlock {
@@ -243,11 +246,12 @@ public struct DispatchBlock {
 
 	/* cancel */
 
-    mutating func cancel() {
+     func cancel() {
         // I don't think that syncronisation is necessary. Any combination of multiple access
         // should result in zero or negagive. If the read happens with a positive value during
         // write that is just like if it read before the write. No values are invalid as such.
-        isCancelled = true
+        print("+++")
+        OSAtomicIncrement32Barrier(&isCancelled)
     }
 
 	/* wait */
