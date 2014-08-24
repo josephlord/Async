@@ -105,11 +105,11 @@ block.wait()
 ```
 
 ### How does it work
-It creates a dispatch group for each block and uses that to notify other blocks to run. In places blocks are wrapped in other blocks to explitly notify. 
+It creates a dispatch group for each block and uses that to notify other blocks to run. In places blocks are wrapped in other blocks to explitly enter or leave groups so that following blocks are appropriately signalled.
 ```swift
 // To Be Completed
 ```
-syntax part of the chaining works by having class methods on the `Async` object e.g. `Async.main {}` which returns a struct. The struct has matching methods e.g. `theStruct.main {}`.
+The syntax part of the chaining works by having class methods on the `Async` object e.g. `Async.main {}` which returns a struct. The struct has matching methods e.g. `theStruct.main {}`.
 
 ### Known improvements
 ```default``` is a keyword. Workaround used: ```default_```. Could use [this](http://ericasadun.com/2014/08/21/swift-when-cocoa-and-swift-collide/) trick shown be Erica Sadun, i.e. ```class func `default`() -> {}``` but it results in this use ```Async.`default`{}```
