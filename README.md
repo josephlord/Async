@@ -91,7 +91,7 @@ Async.main(after: seconds) {
 }
 ```
 
-Cancel blocks that aren't already dispatched: NOT SUPPORTED IN AsyncLite - Full Async only. 
+--Cancel blocks that aren't already dispatched:-- NOT SUPPORTED IN AsyncLite - Full Async only. 
 
 Wait for block to finish – an ease way to continue on current queue after background task:
 ```swift
@@ -109,6 +109,7 @@ It creates a dispatch group for each block and uses that to notify other blocks 
 ```swift
 // To Be Completed
 ```
+syntax part of the chaining works by having class methods on the `Async` object e.g. `Async.main {}` which returns a struct. The struct has matching methods e.g. `theStruct.main {}`.
 
 ### Known improvements
 ```default``` is a keyword. Workaround used: ```default_```. Could use [this](http://ericasadun.com/2014/08/21/swift-when-cocoa-and-swift-collide/) trick shown be Erica Sadun, i.e. ```class func `default`() -> {}``` but it results in this use ```Async.`default`{}```
@@ -117,6 +118,7 @@ It creates a dispatch group for each block and uses that to notify other blocks 
 The MIT License (MIT)
 
 Copyright (c) 2014 Tobias Due Munk
+
 Copyright (c) 2014 Joseph Lord (Human Friendly Ltd.)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
