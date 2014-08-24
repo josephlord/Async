@@ -396,6 +396,22 @@ class AsyncExample_iOSTests: XCTestCase {
 		waitForExpectationsWithTimeout(10, handler: nil)
         NSThread.sleepForTimeInterval(1.0)
 	}
+
+    func testChainedBlocksAfterCancel() {
+        let expectation = expectationWithDescription("Block3 should run")
+        let toCancel = Async.default_(after: 1.0) {
+            // Something to delay
+        }.background() {
+             // Something to cancel
+            XCTFail("This should be cancelled")
+        }
+        
+        toCancel.background() {
+            expectation.fulfill()
+        }
+        toCancel.cancel()
+        waitForExpectationsWithTimeout(3, handler: nil)
+    }
 	
 	/* dispatch_wait() */
 	
