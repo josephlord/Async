@@ -1,7 +1,7 @@
-AsyncLite
+Async.legacy
 =====
 
-Subset of [Async]( https://github.com/duemunk/Async) rewritten for iOS7 and OS X 10.9 Compatibility. Unless you are targeting iOS7 or 10.9 I recommend you stick to the full Async for more features and possibly better performance. 
+Subset of [Async]( https://github.com/duemunk/Async) rewritten for iOS7 and OS X 10.9 Compatibility. Unless you are targeting iOS7 or 10.9 I recommend you stick to the full [Async]( https://github.com/duemunk/Async) for more features and possibly better performance. 
 
 Syntactic sugar in Swift for asynchronous dispatches in Grand Central Dispatch ([GCD](https://developer.apple.com/library/prerelease/ios/documentation/Performance/Reference/GCD_libdispatch_Ref/index.html))
 
@@ -36,11 +36,11 @@ OS X 10.9+ and iOS 7+
 Supports the modern queue classes:
 ```swift
 Async.main {}
-Async.userInteractive {} // Remapped to high priority
-Async.userInitiated {} // Remapped to high priority
-Async.default_ {}
-Async.utility {}
-Async.background {}
+Async.userInteractive {} // Remapped to DISPATCH_QUEUE_PRIORITY_HIGH
+Async.userInitiated {}   // Remapped to DISPATCH_QUEUE_PRIORITY_HIGH
+Async.default_ {}        // Remapped to DISPATCH_QUEUE_PRIORITY_DEFAULT 
+Async.utility {}         // Remapped to DISPATCH_QUEUE_PRIORITY_LOW
+Async.background {}      // Remapped to DISPATCH_QUEUE_PRIORITY_BACKGROUND
 ```
 
 Chain as many blocks as you want:
@@ -91,7 +91,7 @@ Async.main(after: seconds) {
 }
 ```
 
---Cancel blocks that aren't already dispatched:-- NOT SUPPORTED IN AsyncLite - Full Async only. 
+--Cancel blocks that aren't already dispatched:-- NOT SUPPORTED IN Async.legacy (yet) - Full Async only. 
 
 Wait for block to finish – an ease way to continue on current queue after background task:
 ```swift
