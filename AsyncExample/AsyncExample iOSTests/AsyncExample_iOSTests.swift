@@ -398,7 +398,7 @@ class AsyncExample_iOSTests: XCTestCase {
 	}
 
     func testChainedBlocksAfterCancel() {
-        let expectation = expectationWithDescription("Block3 should run")
+        let expectation = expectationWithDescription("Last block should run")
         let toCancel = Async.default_(after: 1.0) {
             // Something to delay
         }.background() {
