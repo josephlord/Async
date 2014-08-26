@@ -71,7 +71,7 @@ public class Async {
 		let dBlock =  DispatchBlock()
 
         // Add block to queue
-		dispatch_group_async(dBlock.dgroup, queue, block)
+		dispatch_group_async(dBlock.dgroup, queue, dBlock.cancellable(block))
 
         return dBlock
 		
@@ -111,7 +111,8 @@ public class Async {
         let dBlock = DispatchBlock()
         dispatch_group_enter(dBlock.dgroup)
         dispatch_after(time, queue){
-            block()
+            let cancellableBlock = dBlock.cancellable(block)
+            cancellableBlock() // Compiler crashed in Beta6 when I just did dBlock.cancellable(block) directly.
             dispatch_group_leave(dBlock.dgroup)
         }
 		return dBlock
@@ -141,14 +142,10 @@ public class Async {
 
 
 // Wrapper since non-nominal type 'dispatch_block_t' cannot be extended (extension dispatch_block_t {})
-public struct DispatchBlock {
-	
-    private let dgroup: dispatch_group_t
-	
-	init() {
-        dgroup = dispatch_group_create()
-	}
-
+public class DispatchBlock {
+    
+    private let dgroup: dispatch_group_t = dispatch_group_create()
+    private var isCancelled = false
 
 	/* dispatch_async() */
 	
@@ -157,11 +154,21 @@ public struct DispatchBlock {
         let dBlock = DispatchBlock()
         dispatch_group_enter(dBlock.dgroup)
         dispatch_group_notify(self.dgroup, queue) {
-            chainingBlock()
+            let cancellableChainingBlock = self.cancellable(chainingBlock)
+            cancellableChainingBlock()
             dispatch_group_leave(dBlock.dgroup)
         }
 		return dBlock
 	}
+    
+    private func cancellable(blockToWrap: dispatch_block_t) -> dispatch_block_t {
+        weak var weakSelf = self
+        return {
+            if weakSelf == nil || !weakSelf!.isCancelled {
+                blockToWrap()
+            }
+        }
+    }
 	
 	func main(chainingBlock: dispatch_block_t) -> DispatchBlock {
 		return chain(block: chainingBlock, runInQueue: GCD.mainQueue())
@@ -198,7 +205,8 @@ public struct DispatchBlock {
             let nanoSeconds = Int64(seconds * Double(NSEC_PER_SEC))
             let time = dispatch_time(DISPATCH_TIME_NOW, nanoSeconds)
             dispatch_after(time, queue) {
-                chainingBlock()
+                let cancellableChainingBlock = self.cancellable(chainingBlock)
+                cancellableChainingBlock()
                 dispatch_group_leave(dBlock.dgroup)
             }
             
@@ -233,9 +241,12 @@ public struct DispatchBlock {
 
 	/* cancel */
 
-    //	func cancel() {
-    //      dispatch_block_cancel(block)
-    //  }
+     func cancel() {
+        // I don't think that syncronisation is necessary. Any combination of multiple access
+        // should result in zero or negagive. If the read happens with a positive value during
+        // write that is just like if it read before the write. No values are invalid as such.
+        isCancelled = true
+    }
 
 	/* wait */
 

@@ -371,29 +371,47 @@ class AsyncExample_iOSTests: XCTestCase {
 
 	/* dispatch_block_cancel() */
 
-//	func testCancel() {
-//		let expectation = expectationWithDescription("Block1 should run")
-//		
-//		let block1 = Async.background {
-//			// Heavy work
-//			for i in 0...1000 {
-//				println("A \(i)")
-//			}
-//			expectation.fulfill()
-//		}
-//		let block2 = block1.background {
-//			println("B – shouldn't be reached, since cancelled")
-//			XCTFail("Shouldn't be reached, since cancelled")
-//		}
-//		
-//		Async.main(after: 0.01) {
-//			block1.cancel() // First block is _not_ cancelled
-//			block2.cancel() // Second block _is_ cancelled
-//		}
-//		
-//		waitForExpectationsWithTimeout(20, handler: nil)
-//	}
-	
+	func testCancel() {
+		let expectation = expectationWithDescription("Block1 should run")
+        var failedTest = false
+		var block1 = Async.background {
+			// Heavy work
+			for i in 0...1000 {
+				println("A \(i)")
+			}
+			expectation.fulfill()
+		}
+		var block2 = block1.background {
+			println("B – shouldn't be reached, since cancelled")
+            XCTFail("Shouldn't be reached, since cancelled") // This doesn't work on this thread.
+            failedTest = true
+		}
+		
+		Async.main(after: 0.01) {
+			block1.cancel() // First block is _not_ cancelled
+			block2.cancel() // Second block _is_ cancelled
+            
+		}
+		
+		waitForExpectationsWithTimeout(10, handler: nil)
+        NSThread.sleepForTimeInterval(1.0)
+	}
+
+    func testChainedBlocksAfterCancel() {
+        let expectation = expectationWithDescription("Last block should run")
+        let toCancel = Async.default_(after: 1.0) {
+            // Something to delay
+        }.background() {
+             // Something to cancel
+            XCTFail("This should be cancelled")
+        }
+        
+        toCancel.background() {
+            expectation.fulfill()
+        }
+        toCancel.cancel()
+        waitForExpectationsWithTimeout(3, handler: nil)
+    }
 	
 	/* dispatch_wait() */
 	
