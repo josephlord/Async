@@ -161,7 +161,7 @@ extension Async { // Regualar methods matching static once
         let dBlock = Async()
         dispatch_group_enter(dBlock.dgroup)
         dispatch_group_notify(self.dgroup, queue) {
-            let cancellableChainingBlock = self.cancellable(chainingBlock)
+            let cancellableChainingBlock = dBlock.cancellable(chainingBlock)
             cancellableChainingBlock()
             dispatch_group_leave(dBlock.dgroup)
         }
