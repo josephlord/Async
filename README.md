@@ -1,4 +1,4 @@
-Async.legacy [![](http://img.shields.io/badge/operator_overload-guilty-red.svg)](https://gist.github.com/duemunk/61e45932dbb1a2ca0954) [![](http://img.shields.io/badge/OS%20X-10.10%2B-lightgrey.svg)]() [![](http://img.shields.io/badge/iOS-8.0%2B-lightgrey.svg)]()
+Async.legacy
 ===========+
 
 Subset of [Async]( https://github.com/duemunk/Async) rewritten for iOS7 and OS X 10.9 Compatibility. Unless you are targeting iOS7 or 10.9 I recommend you stick to the full [Async]( https://github.com/duemunk/Async) for more features and possibly better performance. You will particularly benefit from the availability of the new QoS classes available in iOS8 and OS X 10.10 (Yosemite).
