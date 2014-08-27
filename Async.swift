@@ -62,13 +62,11 @@ private class GCD {
 
 public class Async {
     
+    //The block to be executed does not need to be retained in present code
+    //only the dispatch_group is needed in order to cancel it.
     //private let block: dispatch_block_t
     private let dgroup: dispatch_group_t = dispatch_group_create()
     private var isCancelled = false
-    /*
-    private init(_ block: dispatch_block_t) {
-        self.block = block
-    }*/
     private init() {}
     
 }
@@ -81,12 +79,12 @@ extension Async { // Static methods
 
 	private class func async(block: dispatch_block_t, inQueue queue: dispatch_queue_t) -> Async {
         // Wrap block in a struct since dispatch_block_t can't be extended and to give it a group
-		let dBlock =  Async()
+		let asyncBlock =  Async()
 
         // Add block to queue
-		dispatch_group_async(dBlock.dgroup, queue, dBlock.cancellable(block))
+		dispatch_group_async(asyncBlock.dgroup, queue, asyncBlock.cancellable(block))
 
-        return dBlock
+        return asyncBlock
 		
 	}
 	class func main(block: dispatch_block_t) -> Async {
@@ -121,14 +119,14 @@ extension Async { // Static methods
 	}
 	private class func at(time: dispatch_time_t, block: dispatch_block_t, inQueue queue: dispatch_queue_t) -> Async {
 		// See Async.async() for comments
-        let dBlock = Async()
-        dispatch_group_enter(dBlock.dgroup)
+        let asyncBlock = Async()
+        dispatch_group_enter(asyncBlock.dgroup)
         dispatch_after(time, queue){
-            let cancellableBlock = dBlock.cancellable(block)
-            cancellableBlock() // Compiler crashed in Beta6 when I just did dBlock.cancellable(block) directly.
-            dispatch_group_leave(dBlock.dgroup)
+            let cancellableBlock = asyncBlock.cancellable(block)
+            cancellableBlock() // Compiler crashed in Beta6 when I just did asyncBlock.cancellable(block) directly.
+            dispatch_group_leave(asyncBlock.dgroup)
         }
-		return dBlock
+		return asyncBlock
 	}
 	class func main(#after: Double, block: dispatch_block_t) -> Async {
 		return Async.after(after, block: block, inQueue: GCD.mainQueue())
@@ -158,14 +156,14 @@ extension Async { // Regualar methods matching static once
 	
 	private func chain(block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> Async {
 		// See Async.async() for comments
-        let dBlock = Async()
-        dispatch_group_enter(dBlock.dgroup)
+        let asyncBlock = Async()
+        dispatch_group_enter(asyncBlock.dgroup)
         dispatch_group_notify(self.dgroup, queue) {
-            let cancellableChainingBlock = dBlock.cancellable(chainingBlock)
+            let cancellableChainingBlock = asyncBlock.cancellable(chainingBlock)
             cancellableChainingBlock()
-            dispatch_group_leave(dBlock.dgroup)
+            dispatch_group_leave(asyncBlock.dgroup)
         }
-		return dBlock
+		return asyncBlock
 	}
     
     private func cancellable(blockToWrap: dispatch_block_t) -> dispatch_block_t {
@@ -204,23 +202,23 @@ extension Async { // Regualar methods matching static once
 
 	private func after(seconds: Double, block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> Async {
         
-        var dBlock = Async()
+        var asyncBlock = Async()
         
         dispatch_group_notify(self.dgroup, queue)
         {
-            dispatch_group_enter(dBlock.dgroup)
+            dispatch_group_enter(asyncBlock.dgroup)
             let nanoSeconds = Int64(seconds * Double(NSEC_PER_SEC))
             let time = dispatch_time(DISPATCH_TIME_NOW, nanoSeconds)
             dispatch_after(time, queue) {
                 let cancellableChainingBlock = self.cancellable(chainingBlock)
                 cancellableChainingBlock()
-                dispatch_group_leave(dBlock.dgroup)
+                dispatch_group_leave(asyncBlock.dgroup)
             }
             
         }
 
 		// Wrap block in a struct since dispatch_block_t can't be extended
-		return dBlock
+		return asyncBlock
 	}
 	func main(#after: Double, block: dispatch_block_t) -> Async {
 		return self.after(after, block: block, runInQueue: GCD.mainQueue())
