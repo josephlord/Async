@@ -1,11 +1,20 @@
-Async.legacy
-=====
+Async.legacy [![](http://img.shields.io/badge/operator_overload-guilty-red.svg)](https://gist.github.com/duemunk/61e45932dbb1a2ca0954) [![](http://img.shields.io/badge/OS%20X-10.10%2B-lightgrey.svg)]() [![](http://img.shields.io/badge/iOS-8.0%2B-lightgrey.svg)]()
+===========+
 
 Subset of [Async]( https://github.com/duemunk/Async) rewritten for iOS7 and OS X 10.9 Compatibility. Unless you are targeting iOS7 or 10.9 I recommend you stick to the full [Async]( https://github.com/duemunk/Async) for more features and possibly better performance. You will particularly benefit from the availability of the new QoS classes available in iOS8 and OS X 10.10 (Yosemite).
 
 Syntactic sugar in Swift for asynchronous dispatches in Grand Central Dispatch ([GCD](https://developer.apple.com/library/prerelease/ios/documentation/Performance/Reference/GCD_libdispatch_Ref/index.html))
 
-The familiar syntax for GCD is:
+**Async** sugar looks like this:
+```swift
+Async.background {
+	println("This is run on the background queue")
+}.main {
+	println("This is run on the main queue, after the previous block")
+}
+```
+
+Instead of the familiar syntax for GCD:
 ```swift
 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), {
 	println("This is run on the background queue")
@@ -16,14 +25,7 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0),
 })
 ```
 
-**Async** adds syntactic sugar resulting in this:
-```swift
-Async.background {
-	println("This is run on the background queue")
-}.main {
-	println("This is run on the main queue, after the previous block")
-}
-```
+
 
 ### Benefits
 1. Less verbose code
@@ -127,7 +129,7 @@ It creates a dispatch group for each block and uses that to notify other blocks 
 ```swift
 // To Be Completed
 ```
-The syntax part of the chaining works by having class methods on the `Async` object e.g. `Async.main {}` which returns a struct. The struct has matching methods e.g. `theStruct.main {}`.
+The syntax part of the chaining works by having class methods on the `Async` object e.g. `Async.main {}` which returns an Async object. The object has matching methods e.g. `theObject.main {}`. Objects are used so that you can pass the the object by reference so that you can cancel it if required.
 
 ### Known improvements
 ```default``` is a keyword. Workaround used: ```default_```. Could use [this](http://ericasadun.com/2014/08/21/swift-when-cocoa-and-swift-collide/) trick shown be Erica Sadun, i.e. ```class func `default`() -> {}``` but it results in this use ```Async.`default`{}```
