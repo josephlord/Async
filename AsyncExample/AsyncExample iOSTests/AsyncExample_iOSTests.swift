@@ -9,6 +9,14 @@
 import UIKit
 import XCTest
 
+// Just a mininally printing workload
+func dumbFibonachi(n:Int)->Int {
+    if n < 3 {
+        return 1
+    }
+    return dumbFibonachi(n-1) + dumbFibonachi(n-2)
+}
+
 class AsyncExample_iOSTests: XCTestCase {
     
     override func setUp() {
@@ -389,8 +397,9 @@ class AsyncExample_iOSTests: XCTestCase {
         var failedTest = false
 		var block1 = Async.background {
 			// Heavy work
-			for i in 0...1000 {
-				println("A \(i)")
+			for i in 0...15 {
+                self.fibonachiResult = [Int](count: 2000, repeatedValue: 15).map { return dumbFibonachi($0)}
+				println("Fib \(i) = \(dumbFibonachi(i))")
 			}
 			expectation.fulfill()
 		}
@@ -409,32 +418,33 @@ class AsyncExample_iOSTests: XCTestCase {
 		waitForExpectationsWithTimeout(10, handler: nil)
         NSThread.sleepForTimeInterval(1.0)
 	}
+	
 
     func testChainedBlocksAfterCancel() {
-        let expectation = expectationWithDescription("Last block should run")
-        let toCancel = Async.default_(after: 1.0) {
+        let expectation1 = expectationWithDescription("First block should run")
+        let expectation2 = expectationWithDescription("Third and last block should run")
+        let firstBlock = Async.main(after: 1.0) {
             // Something to delay
-        }.background() {
-             // Something to cancel
+            expectation1.fulfill()
+        }
+        let secondBlock = firstBlock.background {
+            // Something to cancel
+            println("This should be cancelled")
             XCTFail("This should be cancelled")
         }
-        
-        toCancel.background() {
-            expectation.fulfill()
+        secondBlock.background {
+            expectation2.fulfill()
         }
-        toCancel.cancel()
+        secondBlock.cancel()
         waitForExpectationsWithTimeout(3, handler: nil)
     }
-	
 	/* dispatch_wait() */
 	
 	func testWait() {
 		var id = 0
 		let block = Async.background {
 			// Heavy work
-			for i in 0...100 {
-				println("A \(i)")
-			}
+			println("Fib 12 = \(dumbFibonachi(12))")
 			XCTAssertEqual(++id, 1, "")
 		}
 		XCTAssertEqual(id, 0, "")
@@ -442,14 +452,15 @@ class AsyncExample_iOSTests: XCTestCase {
 		block.wait()
 		XCTAssertEqual(++id, 2, "")
 	}
-	
+	var fibonachiResult:[Int] = [] // Prevents optimiser removing fibonachi calls
 	func testWaitMax() {
 		var id = 0
 		let block = Async.background {
 			XCTAssertEqual(++id, 1, "") // A
 			// Heavy work
-			for i in 0...10000 {
-				println("A \(i)")
+			for i in 0...15 {
+                self.fibonachiResult = [Int](count: 2000, repeatedValue: 15).map { return dumbFibonachi($0)}
+				println("Fib \(i) = \(dumbFibonachi(i))")
 			}
 			XCTAssertEqual(++id, 3, "") // C
 		}
