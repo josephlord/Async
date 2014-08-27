@@ -17,6 +17,16 @@ func dumbFibonachi(n:Int)->Int {
     return dumbFibonachi(n-1) + dumbFibonachi(n-2)
 }
 
+var fibonachiResult:[Int] = [] // Prevents optimiser removing fibonachi calls
+var emptyString = ""
+func heavyWork() {
+    // Heavy work
+    for i in 0...15 {
+        fibonachiResult = [Int](count: 2000, repeatedValue: 15).map { return dumbFibonachi($0)}
+        print(emptyString)
+    }
+}
+
 class AsyncExample_iOSTests: XCTestCase {
     
     override func setUp() {
@@ -394,19 +404,14 @@ class AsyncExample_iOSTests: XCTestCase {
 
 	func testCancel() {
 		let expectation = expectationWithDescription("Block1 should run")
-        var failedTest = false
-		var block1 = Async.background {
-			// Heavy work
-			for i in 0...15 {
-                self.fibonachiResult = [Int](count: 2000, repeatedValue: 15).map { return dumbFibonachi($0)}
-				println("Fib \(i) = \(dumbFibonachi(i))")
-			}
+
+		let block1 = Async.background {
+			heavyWork()
 			expectation.fulfill()
 		}
 		var block2 = block1.background {
 			println("B – shouldn't be reached, since cancelled")
             XCTFail("Shouldn't be reached, since cancelled") // This doesn't work on this thread.
-            failedTest = true
 		}
 		
 		Async.main(after: 0.01) {
@@ -418,7 +423,6 @@ class AsyncExample_iOSTests: XCTestCase {
 		waitForExpectationsWithTimeout(10, handler: nil)
         NSThread.sleepForTimeInterval(1.0)
 	}
-	
 
     func testChainedBlocksAfterCancel() {
         let expectation1 = expectationWithDescription("First block should run")
@@ -438,12 +442,13 @@ class AsyncExample_iOSTests: XCTestCase {
         secondBlock.cancel()
         waitForExpectationsWithTimeout(3, handler: nil)
     }
+
 	/* dispatch_wait() */
 	
 	func testWait() {
 		var id = 0
 		let block = Async.background {
-			// Heavy work
+			// Medium light work
 			println("Fib 12 = \(dumbFibonachi(12))")
 			XCTAssertEqual(++id, 1, "")
 		}
@@ -452,16 +457,12 @@ class AsyncExample_iOSTests: XCTestCase {
 		block.wait()
 		XCTAssertEqual(++id, 2, "")
 	}
-	var fibonachiResult:[Int] = [] // Prevents optimiser removing fibonachi calls
+
 	func testWaitMax() {
 		var id = 0
 		let block = Async.background {
 			XCTAssertEqual(++id, 1, "") // A
-			// Heavy work
-			for i in 0...15 {
-                self.fibonachiResult = [Int](count: 2000, repeatedValue: 15).map { return dumbFibonachi($0)}
-				println("Fib \(i) = \(dumbFibonachi(i))")
-			}
+			heavyWork()
 			XCTAssertEqual(++id, 3, "") // C
 		}
 		XCTAssertEqual(id, 0, "")
