@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4E320F35198294F10087A3B7 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* Async.swift */; };
-		4E320F36198294F20087A3B7 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* Async.swift */; };
+		4E320F35198294F10087A3B7 /* AsyncLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */; };
+		4E320F36198294F20087A3B7 /* AsyncLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */; };
 		4EF830A01975952B00C5F0EE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF8309F1975952B00C5F0EE /* main.swift */; };
 		4EF830A21975952B00C5F0EE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830A11975952B00C5F0EE /* ViewController.swift */; };
 		4EF830A41975952B00C5F0EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830A31975952B00C5F0EE /* AppDelegate.swift */; };
@@ -20,8 +20,8 @@
 		4EF830D01975954B00C5F0EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830CE1975954B00C5F0EE /* Main.storyboard */; };
 		4EF830D21975954B00C5F0EE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830D11975954B00C5F0EE /* Images.xcassets */; };
 		4EF830DE1975954B00C5F0EE /* AsyncExample_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830DD1975954B00C5F0EE /* AsyncExample_iOSTests.swift */; };
-		4EF830E71975956F00C5F0EE /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* Async.swift */; };
-		4EF830E81975965D00C5F0EE /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* Async.swift */; };
+		4EF830E71975956F00C5F0EE /* AsyncLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */; };
+		4EF830E81975965D00C5F0EE /* AsyncLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,7 +96,7 @@
 		4EF830D71975954B00C5F0EE /* AsyncExample iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AsyncExample iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EF830DC1975954B00C5F0EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EF830DD1975954B00C5F0EE /* AsyncExample_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncExample_iOSTests.swift; sourceTree = "<group>"; };
-		4EF830E61975956F00C5F0EE /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
+		4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncLegacy.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,7 +232,7 @@
 		4EF830E51975955600C5F0EE /* Async */ = {
 			isa = PBXGroup;
 			children = (
-				4EF830E61975956F00C5F0EE /* Async.swift */,
+				4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */,
 			);
 			name = Async;
 			path = ..;
@@ -404,7 +404,7 @@
 			files = (
 				4EF830A41975952B00C5F0EE /* AppDelegate.swift in Sources */,
 				4EF830A21975952B00C5F0EE /* ViewController.swift in Sources */,
-				4EF830E81975965D00C5F0EE /* Async.swift in Sources */,
+				4EF830E81975965D00C5F0EE /* AsyncLegacy.swift in Sources */,
 				4EF830A01975952B00C5F0EE /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -413,7 +413,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4E320F36198294F20087A3B7 /* Async.swift in Sources */,
+				4E320F36198294F20087A3B7 /* AsyncLegacy.swift in Sources */,
 				4EF830B51975952B00C5F0EE /* AsyncExample_OS_XTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -422,7 +422,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4EF830E71975956F00C5F0EE /* Async.swift in Sources */,
+				4EF830E71975956F00C5F0EE /* AsyncLegacy.swift in Sources */,
 				4EF830CD1975954B00C5F0EE /* ViewController.swift in Sources */,
 				4EF830CB1975954B00C5F0EE /* AppDelegate.swift in Sources */,
 			);
@@ -432,7 +432,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4E320F35198294F10087A3B7 /* Async.swift in Sources */,
+				4E320F35198294F10087A3B7 /* AsyncLegacy.swift in Sources */,
 				4EF830DE1975954B00C5F0EE /* AsyncExample_iOSTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
