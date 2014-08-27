@@ -60,8 +60,6 @@ private class GCD {
 	}
 }
 
-typealias DispatchBlock = Async
-
 public class Async {
     
     //private let block: dispatch_block_t
@@ -71,6 +69,7 @@ public class Async {
     private init(_ block: dispatch_block_t) {
         self.block = block
     }*/
+    private init() {}
     
 }
 
@@ -80,7 +79,7 @@ extension Async { // Static methods
 	
 	/* dispatch_async() */
 
-	private class func async(block: dispatch_block_t, inQueue queue: dispatch_queue_t) -> DispatchBlock {
+	private class func async(block: dispatch_block_t, inQueue queue: dispatch_queue_t) -> Async {
         // Wrap block in a struct since dispatch_block_t can't be extended and to give it a group
 		let dBlock =  Async()
 
@@ -122,7 +121,7 @@ extension Async { // Static methods
 	}
 	private class func at(time: dispatch_time_t, block: dispatch_block_t, inQueue queue: dispatch_queue_t) -> Async {
 		// See Async.async() for comments
-        let dBlock = DispatchBlock()
+        let dBlock = Async()
         dispatch_group_enter(dBlock.dgroup)
         dispatch_after(time, queue){
             let cancellableBlock = dBlock.cancellable(block)
@@ -156,12 +155,10 @@ extension Async { // Static methods
 
 
 extension Async { // Regualar methods matching static once
-
-	/* dispatch_async() */
 	
 	private func chain(block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> Async {
 		// See Async.async() for comments
-        let dBlock = DispatchBlock()
+        let dBlock = Async()
         dispatch_group_enter(dBlock.dgroup)
         dispatch_group_notify(self.dgroup, queue) {
             let cancellableChainingBlock = self.cancellable(chainingBlock)
@@ -172,9 +169,9 @@ extension Async { // Regualar methods matching static once
 	}
     
     private func cancellable(blockToWrap: dispatch_block_t) -> dispatch_block_t {
-        weak var weakSelf = self
+        // Retains self in case it is cancelled and then released.
         return {
-            if weakSelf == nil || !weakSelf!.isCancelled {
+            if !self.isCancelled {
                 blockToWrap()
             }
         }
@@ -205,9 +202,9 @@ extension Async { // Regualar methods matching static once
 	
 	/* dispatch_after() */
 
-	private func after(seconds: Double, block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> DispatchBlock {
+	private func after(seconds: Double, block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> Async {
         
-        var dBlock = DispatchBlock()
+        var dBlock = Async()
         
         dispatch_group_notify(self.dgroup, queue)
         {
@@ -221,8 +218,6 @@ extension Async { // Regualar methods matching static once
             }
             
         }
-
-		// Add block to queue *after* previous block is finished
 
 		// Wrap block in a struct since dispatch_block_t can't be extended
 		return dBlock
@@ -254,8 +249,8 @@ extension Async { // Regualar methods matching static once
 
      func cancel() {
         // I don't think that syncronisation is necessary. Any combination of multiple access
-        // should result in zero or negagive. If the read happens with a positive value during
-        // write that is just like if it read before the write. No values are invalid as such.
+        // should result in some boolean value and the cancel will only cancel
+        // if the execution has not yet started.
         isCancelled = true
     }
 

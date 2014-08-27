@@ -135,6 +135,19 @@ class AsyncExample_iOSTests: XCTestCase {
 		}
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
+    
+    func testMultipleChainedOnSingleBlock() {
+        let chainedItemCount = 3
+        let expect0 = expectationWithDescription("First block should have run")
+        let chainedExpectations = map(0..<chainedItemCount) { self.expectationWithDescription("Chained block \($0) should have run") }
+        let firstBlock = Async.background() {
+            expect0.fulfill()
+        }
+        for i in 0..<chainedItemCount {
+            firstBlock.default_() { chainedExpectations[i].fulfill() }
+        }
+        waitForExpectationsWithTimeout(3, handler: nil)
+    }
 	
 	func testCustomQueue() {
 		let expectation = expectationWithDescription("Expected custom queues")
