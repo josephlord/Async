@@ -25,7 +25,8 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0),
 })
 ```
 
-
+### Installing
+Just drop the AsyncLegacy.swift file into your project then you can make the calls as described in this document.
 
 ### Benefits
 1. Less verbose code
@@ -35,7 +36,7 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0),
 OS X 10.9+ and iOS 7+
 
 ### Things you can do
-Supports the modern queue classes:
+Access different priority queues:
 ```swift
 Async.main {}
 Async.userInteractive {} // Remapped to DISPATCH_QUEUE_PRIORITY_HIGH
