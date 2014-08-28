@@ -26,8 +26,10 @@ func heavyWork() {
         print(emptyString)
     }
 }
+let allowEarlyDispatchBy = 0.001
 
 class AsyncExample_iOSTests: XCTestCase {
+    
     
     override func setUp() {
         super.setUp()
@@ -55,7 +57,27 @@ class AsyncExample_iOSTests: XCTestCase {
 //		}
 //		waitForExpectationsWithTimeout(1, handler: nil)
 //	}
-	
+    
+    
+    
+    func testWaitAccuracy() {
+        // Not a pass fail test but an indication of the variation of the actual delay time of even high priority dispatches.
+        var callTimes = [Double]()
+        let runCount = 20
+        let targetDelay:Double = 0.1
+        for i in 0..<runCount {
+            let time = CFAbsoluteTimeGetCurrent()
+            Async.userInteractive(after: targetDelay) {
+                let curTime = CFAbsoluteTimeGetCurrent()
+                callTimes.append(curTime - time)
+            }.wait()
+        }
+        let minMaxSum = reduce(callTimes, (Double.infinity, 0.0, 0.0, 0)) {
+            (min($0.0, $1), max($0.1, $1), $0.2 + $1, $1 < targetDelay ? $0.3 + 1 : $0.3)
+        }
+        println("\(runCount) tests with a target delay of \(targetDelay)")
+        println("Minimum wait: \(minMaxSum.0) Maximum wait: \(minMaxSum.1), Average wait: \(minMaxSum.2/Double(callTimes.count)) Early calls: \(minMaxSum.3)")
+    }
 	
 	/* dispatch_async() */
     
@@ -187,16 +209,16 @@ class AsyncExample_iOSTests: XCTestCase {
 	func testAfterGCD() {
 		
 		let expectation = expectationWithDescription("Expected after time")
-		let date = NSDate()
+		let date = CFAbsoluteTimeGetCurrent()
 		let timeDelay = 1.0
 		let upperTimeDelay = timeDelay + 0.2
 		let time = dispatch_time(DISPATCH_TIME_NOW, Int64(timeDelay * Double(NSEC_PER_SEC)))
 		let queue = dispatch_get_global_queue(+QOS_CLASS_BACKGROUND, 0)
 		dispatch_after(time, queue, {
-			let timePassed = NSDate().timeIntervalSinceDate(date)
+			let timePassed = CFAbsoluteTimeGetCurrent() - date
 			println("\(timePassed)")
-			XCTAssert(timePassed >= timeDelay, "Should wait \(timeDelay) seconds before firing but only waited \(timePassed) seconds")
-			XCTAssert(timePassed < upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay - allowEarlyDispatchBy, "Should wait \(timeDelay) seconds before firing but only waited \(timePassed) seconds")
+			XCTAssertLessThan(timePassed, upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_BACKGROUND, "On \(qos_class_self().description) (expected \(QOS_CLASS_BACKGROUND.description))")
 			expectation.fulfill()
 		})
@@ -205,13 +227,13 @@ class AsyncExample_iOSTests: XCTestCase {
 	
 	func testAfterMain() {
 		let expectation = expectationWithDescription("Expected after time")
-		let date = NSDate()
+		let date = CFAbsoluteTimeGetCurrent()
 		let timeDelay = 1.0
 		let upperTimeDelay = timeDelay + 0.2
 		Async.main(after: timeDelay) {
-			let timePassed = NSDate().timeIntervalSinceDate(date)
-			XCTAssert(timePassed >= timeDelay, "Should wait \(timeDelay) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay - allowEarlyDispatchBy, "Should wait \(timeDelay) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +qos_class_main(), "On main queue")
 			expectation.fulfill()
 		}
@@ -220,8 +242,8 @@ class AsyncExample_iOSTests: XCTestCase {
 	
 	func testChainedAfter() {
 		let expectation = expectationWithDescription("Expected after time")
-		let date1 = NSDate()
-		var date2 = NSDate()
+		let date1 = CFAbsoluteTimeGetCurrent()
+		var date2 = CFAbsoluteTimeGetCurrent()
 		let timeDelay1 = 1.1
 		let upperTimeDelay1 = timeDelay1 + 0.2
 		let timeDelay2 = 1.2
@@ -230,18 +252,18 @@ class AsyncExample_iOSTests: XCTestCase {
 		Async.userInteractive(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date1)
-			XCTAssert(timePassed >= timeDelay1, "Should wait \(timeDelay1) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date1
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay1 - allowEarlyDispatchBy, "Should wait \(timeDelay1) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_USER_INTERACTIVE, "On \(qos_class_self().description) (expected \(QOS_CLASS_USER_INTERACTIVE.description))")
 			
-			date2 = NSDate() // Update
+			date2 = CFAbsoluteTimeGetCurrent() // Update
 		}.utility(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date2)
-			XCTAssert(timePassed >= timeDelay2, "Should wait \(timeDelay2) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date2
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay2 - allowEarlyDispatchBy, "Should wait \(timeDelay2) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_UTILITY, "On \(qos_class_self().description) (expected \(QOS_CLASS_UTILITY.description))")
 			expectation.fulfill()
 		}
@@ -250,8 +272,8 @@ class AsyncExample_iOSTests: XCTestCase {
 	
 	func testAfterUserInteractive() {
 		let expectation = expectationWithDescription("Expected after time")
-		let date1 = NSDate()
-		var date2 = NSDate()
+		let date1 = CFAbsoluteTimeGetCurrent()
+		var date2 = date1
 		let timeDelay1 = 1.1
 		let upperTimeDelay1 = timeDelay1 + 0.2
 		let timeDelay2 = 1.2
@@ -260,18 +282,18 @@ class AsyncExample_iOSTests: XCTestCase {
 		Async.userInteractive(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date1)
-			XCTAssert(timePassed >= timeDelay1, "Should wait \(timeDelay1) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date1
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay1 - allowEarlyDispatchBy, "Should wait \(timeDelay1) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_USER_INTERACTIVE, "On \(qos_class_self().description) (expected \(QOS_CLASS_USER_INTERACTIVE.description))")
 			
-			date2 = NSDate() // Update
+			date2 = CFAbsoluteTimeGetCurrent() // Update
 		}.userInteractive(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date2)
-			XCTAssert(timePassed >= timeDelay2, "Should wait \(timeDelay2) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date2
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay2 - allowEarlyDispatchBy, "Should wait \(timeDelay2) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing - did wait: \(timePassed)")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_USER_INTERACTIVE, "On \(qos_class_self().description) (expected \(QOS_CLASS_USER_INTERACTIVE.description))")
 			expectation.fulfill()
 		}
@@ -280,8 +302,8 @@ class AsyncExample_iOSTests: XCTestCase {
 	
 	func testAfterUserInitiated() {
 		let expectation = expectationWithDescription("Expected after time")
-		let date1 = NSDate()
-		var date2 = NSDate()
+		let date1 = CFAbsoluteTimeGetCurrent()
+		var date2 = CFAbsoluteTimeGetCurrent()
 		let timeDelay1 = 1.1
 		let upperTimeDelay1 = timeDelay1 + 0.2
 		let timeDelay2 = 1.2
@@ -290,18 +312,18 @@ class AsyncExample_iOSTests: XCTestCase {
 		Async.userInitiated(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date1)
-			XCTAssert(timePassed >= timeDelay1, "Should wait \(timeDelay1) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date1
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay1 - allowEarlyDispatchBy, "Should wait \(timeDelay1) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_USER_INITIATED, "On \(qos_class_self().description) (expected \(QOS_CLASS_USER_INITIATED.description))")
 			
-			date2 = NSDate() // Update
+			date2 = CFAbsoluteTimeGetCurrent() // Update
 		}.userInitiated(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date2)
-            //	XCTAssert(timePassed >= timeDelay2, "Should wait \(timeDelay2) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date2
+            XCTAssertGreaterThanOrEqual(timePassed, timeDelay2 - allowEarlyDispatchBy, "Should wait \(timeDelay2) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_USER_INITIATED, "On \(qos_class_self().description) (expected \(QOS_CLASS_USER_INITIATED.description))")
 			expectation.fulfill()
 		}
@@ -311,8 +333,8 @@ class AsyncExample_iOSTests: XCTestCase {
 	// Not expected to succeed (Apples wording: "Not intended as a work classification")
 	func testAfterUserDefault() {
 		let expectation = expectationWithDescription("Expected after time")
-		let date1 = NSDate()
-		var date2 = NSDate()
+		let date1 = CFAbsoluteTimeGetCurrent()
+		var date2 = CFAbsoluteTimeGetCurrent()
 		let timeDelay1 = 1.1
 		let upperTimeDelay1 = timeDelay1 + 0.2
 		let timeDelay2 = 1.2
@@ -321,18 +343,18 @@ class AsyncExample_iOSTests: XCTestCase {
 		Async.default_(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date1)
-			XCTAssert(timePassed >= timeDelay1, "Should wait \(timeDelay1) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date1
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay1 - allowEarlyDispatchBy, "Should wait \(timeDelay1) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_DEFAULT, "On \(qos_class_self().description) (expected \(QOS_CLASS_DEFAULT.description))")
 			
-			date2 = NSDate() // Update
+			date2 = CFAbsoluteTimeGetCurrent() // Update
 		}.default_(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date2)
-			XCTAssert(timePassed >= timeDelay2, "Should wait \(timeDelay2) seconds before firing - did wait \(timePassed) seconds")
-			XCTAssert(timePassed < upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date2
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay2 - allowEarlyDispatchBy, "Should wait \(timeDelay2) seconds before firing - did wait \(timePassed) seconds")
+			XCTAssertLessThan(timePassed, upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_DEFAULT, "On \(qos_class_self().description) (expected \(QOS_CLASS_DEFAULT.description))")
 			expectation.fulfill()
 		}
@@ -341,8 +363,8 @@ class AsyncExample_iOSTests: XCTestCase {
 	
 	func testAfterUtility() {
 		let expectation = expectationWithDescription("Expected after time")
-		let date1 = NSDate()
-		var date2 = NSDate()
+		let date1 = CFAbsoluteTimeGetCurrent()
+		var date2 = CFAbsoluteTimeGetCurrent()
 		let timeDelay1 = 1.1
 		let upperTimeDelay1 = timeDelay1 + 0.2
 		let timeDelay2 = 1.2
@@ -351,18 +373,18 @@ class AsyncExample_iOSTests: XCTestCase {
 		Async.utility(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date1)
-			XCTAssert(timePassed >= timeDelay1, "Should wait \(timeDelay1) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date1
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay1 - allowEarlyDispatchBy, "Should wait \(timeDelay1) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_UTILITY, "On \(qos_class_self().description) (expected \(QOS_CLASS_UTILITY.description))")
 			
-			date2 = NSDate() // Update
+			date2 = CFAbsoluteTimeGetCurrent() // Update
 		}.utility(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date2)
-			XCTAssert(timePassed >= timeDelay2, "Should wait \(timeDelay2) seconds before firing - did wait \(timePassed) seconds")
-			XCTAssert(timePassed < upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date2
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay2 - allowEarlyDispatchBy, "Should wait \(timeDelay2) seconds before firing - did wait \(timePassed) seconds")
+			XCTAssertLessThan(timePassed, upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_UTILITY, "On \(qos_class_self().description) (expected \(QOS_CLASS_UTILITY.description))")
 			expectation.fulfill()
 		}
@@ -371,8 +393,8 @@ class AsyncExample_iOSTests: XCTestCase {
 	
 	func testAfterBackground() {
 		let expectation = expectationWithDescription("Expected after time")
-		let date1 = NSDate()
-		var date2 = NSDate()
+		let date1 = CFAbsoluteTimeGetCurrent()
+		var date2 = CFAbsoluteTimeGetCurrent()
 		let timeDelay1 = 1.1
 		let upperTimeDelay1 = timeDelay1 + 0.2
 		let timeDelay2 = 1.2
@@ -381,18 +403,18 @@ class AsyncExample_iOSTests: XCTestCase {
 		Async.background(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date1)
-			XCTAssert(timePassed >= timeDelay1, "Should wait \(timeDelay1) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date1
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay1 - allowEarlyDispatchBy, "Should wait \(timeDelay1) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay1, "Shouldn't wait \(upperTimeDelay1) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_BACKGROUND, "On \(qos_class_self().description) (expected \(QOS_CLASS_BACKGROUND.description))")
 			
-			date2 = NSDate() // Update
+			date2 = CFAbsoluteTimeGetCurrent() // Update
 		}.background(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
-			let timePassed = NSDate().timeIntervalSinceDate(date2)
-			XCTAssert(timePassed >= timeDelay2, "Should wait \(timeDelay2) seconds before firing")
-			XCTAssert(timePassed < upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
+			let timePassed = CFAbsoluteTimeGetCurrent() - date2
+			XCTAssertGreaterThanOrEqual(timePassed, timeDelay2 - allowEarlyDispatchBy, "Should wait \(timeDelay2) seconds before firing")
+			XCTAssertLessThan(timePassed, upperTimeDelay2, "Shouldn't wait \(upperTimeDelay2) seconds before firing")
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_BACKGROUND, "On \(qos_class_self().description) (expected \(QOS_CLASS_BACKGROUND.description))")
 			expectation.fulfill()
 		}
@@ -467,14 +489,14 @@ class AsyncExample_iOSTests: XCTestCase {
 		}
 		XCTAssertEqual(id, 0, "")
 		
-		let date = NSDate()
+		let date = CFAbsoluteTimeGetCurrent()
 		let timeDelay = 0.3
 		let upperTimeDelay = timeDelay + 0.2
 		
 		block.wait(seconds: timeDelay)
 		
 		XCTAssertEqual(++id, 2, "") // B
-		let timePassed = NSDate().timeIntervalSinceDate(date)
-		XCTAssert(timePassed < upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
+		let timePassed = CFAbsoluteTimeGetCurrent() - date
+		XCTAssertLessThan(timePassed, upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
 	}
 }
