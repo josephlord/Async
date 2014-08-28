@@ -4,6 +4,8 @@
 //
 //  Created by Tobias DM on 15/07/14.
 //  Copyright (c) 2014 Tobias Due Munk. All rights reserved.
+//  Modifed by Joseph Lord
+//  Copyright (c) 2014 Human Friendly Ltd. See http://github.com/josephlord/Async.legacy for license terms.
 //
 
 import UIKit

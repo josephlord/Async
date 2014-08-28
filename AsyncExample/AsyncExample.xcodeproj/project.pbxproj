@@ -14,12 +14,11 @@
 		4EF830A41975952B00C5F0EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830A31975952B00C5F0EE /* AppDelegate.swift */; };
 		4EF830A61975952B00C5F0EE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830A51975952B00C5F0EE /* Images.xcassets */; };
 		4EF830A91975952B00C5F0EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830A71975952B00C5F0EE /* Main.storyboard */; };
-		4EF830B51975952B00C5F0EE /* AsyncExample_OS_XTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830B41975952B00C5F0EE /* AsyncExample_OS_XTests.swift */; };
 		4EF830CB1975954B00C5F0EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830CA1975954B00C5F0EE /* AppDelegate.swift */; };
 		4EF830CD1975954B00C5F0EE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830CC1975954B00C5F0EE /* ViewController.swift */; };
 		4EF830D01975954B00C5F0EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830CE1975954B00C5F0EE /* Main.storyboard */; };
 		4EF830D21975954B00C5F0EE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830D11975954B00C5F0EE /* Images.xcassets */; };
-		4EF830DE1975954B00C5F0EE /* AsyncExample_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830DD1975954B00C5F0EE /* AsyncExample_iOSTests.swift */; };
+		4EF830DE1975954B00C5F0EE /* AsyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830DD1975954B00C5F0EE /* AsyncTests.swift */; };
 		4EF830E71975956F00C5F0EE /* AsyncLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */; };
 		4EF830E81975965D00C5F0EE /* AsyncLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */; };
 /* End PBXBuildFile section */
@@ -86,7 +85,6 @@
 		4EF830A81975952B00C5F0EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4EF830AE1975952B00C5F0EE /* AsyncExample OS XTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AsyncExample OS XTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EF830B31975952B00C5F0EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4EF830B41975952B00C5F0EE /* AsyncExample_OS_XTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncExample_OS_XTests.swift; sourceTree = "<group>"; };
 		4EF830C61975954B00C5F0EE /* AsyncExample iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AsyncExample iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EF830C91975954B00C5F0EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EF830CA1975954B00C5F0EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -95,7 +93,7 @@
 		4EF830D11975954B00C5F0EE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		4EF830D71975954B00C5F0EE /* AsyncExample iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AsyncExample iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EF830DC1975954B00C5F0EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4EF830DD1975954B00C5F0EE /* AsyncExample_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncExample_iOSTests.swift; sourceTree = "<group>"; };
+		4EF830DD1975954B00C5F0EE /* AsyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AsyncTests.swift; path = "AsyncExample iOSTests/AsyncTests.swift"; sourceTree = "<group>"; };
 		4EF830E61975956F00C5F0EE /* AsyncLegacy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncLegacy.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -135,6 +133,7 @@
 			isa = PBXGroup;
 			children = (
 				4EF830E51975955600C5F0EE /* Async */,
+				BE53266B19AF51A300AA9953 /* Async Common Test Files */,
 				4EF830C71975954B00C5F0EE /* AsyncExample iOS */,
 				4EF830DA1975954B00C5F0EE /* AsyncExample iOSTests */,
 				4EF8309C1975952B00C5F0EE /* AsyncExample OS X */,
@@ -178,7 +177,6 @@
 		4EF830B11975952B00C5F0EE /* AsyncExample OS XTests */ = {
 			isa = PBXGroup;
 			children = (
-				4EF830B41975952B00C5F0EE /* AsyncExample_OS_XTests.swift */,
 				4EF830B21975952B00C5F0EE /* Supporting Files */,
 			);
 			path = "AsyncExample OS XTests";
@@ -215,7 +213,6 @@
 		4EF830DA1975954B00C5F0EE /* AsyncExample iOSTests */ = {
 			isa = PBXGroup;
 			children = (
-				4EF830DD1975954B00C5F0EE /* AsyncExample_iOSTests.swift */,
 				4EF830DB1975954B00C5F0EE /* Supporting Files */,
 			);
 			path = "AsyncExample iOSTests";
@@ -236,6 +233,14 @@
 			);
 			name = Async;
 			path = ..;
+			sourceTree = "<group>";
+		};
+		BE53266B19AF51A300AA9953 /* Async Common Test Files */ = {
+			isa = PBXGroup;
+			children = (
+				4EF830DD1975954B00C5F0EE /* AsyncTests.swift */,
+			);
+			name = "Async Common Test Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -414,7 +419,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E320F36198294F20087A3B7 /* AsyncLegacy.swift in Sources */,
-				4EF830B51975952B00C5F0EE /* AsyncExample_OS_XTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -433,7 +437,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E320F35198294F10087A3B7 /* AsyncLegacy.swift in Sources */,
-				4EF830DE1975954B00C5F0EE /* AsyncExample_iOSTests.swift in Sources */,
+				4EF830DE1975954B00C5F0EE /* AsyncTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
