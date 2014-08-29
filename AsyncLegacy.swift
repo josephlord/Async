@@ -1,9 +1,11 @@
 //
-//  Async.swift
+//  AsyncLegacy.swift
 //
 //  Created by Tobias DM on 15/07/14.
+//  Modifed by Joseph Lord
+//  Copyright (c) 2014 Human Friendly Ltd.
 //
-//	OS X 10.10+ and iOS 8.0+
+//	OS X 10.9+ and iOS 7.0+
 //	Only use with ARC
 //
 //	The MIT License (MIT)

@@ -1,12 +1,13 @@
 //
-//  AsyncExample_iOSTests.swift
-//  AsyncExample iOSTests
+//  AsyncTests.swift
+//  AsyncTests
 //
 //  Created by Tobias DM on 15/07/14.
 //  Copyright (c) 2014 Tobias Due Munk. All rights reserved.
+//  Modifed by Joseph Lord
+//  Copyright (c) 2014 Human Friendly Ltd. See http://github.com/josephlord/Async.legacy for license terms.
 //
 
-import UIKit
 import XCTest
 
 // Just a mininally printing workload
@@ -28,7 +29,7 @@ func heavyWork() {
 }
 let allowEarlyDispatchBy = 0.001
 
-class AsyncExample_iOSTests: XCTestCase {
+class AsyncTests: XCTestCase {
     
     
     override func setUp() {
