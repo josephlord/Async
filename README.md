@@ -1,9 +1,11 @@
 Async.legacy
 ============
 
-Subset of [Async]( https://github.com/duemunk/Async) rewritten for iOS7 and OS X 10.9 Compatibility. Unless you are targeting iOS7 or 10.9 I recommend you stick to the full [Async]( https://github.com/duemunk/Async) for more features and possibly better performance. You will particularly benefit from the availability of the new QoS classes available in iOS8 and OS X 10.10 (Yosemite).
-
 Syntactic sugar in Swift for asynchronous dispatches in Grand Central Dispatch ([GCD](https://developer.apple.com/library/prerelease/ios/documentation/Performance/Reference/GCD_libdispatch_Ref/index.html))
+
+[Async]( https://github.com/duemunk/Async) rewritten for iOS7 and OS X 10.9 Compatibility. Unless you are targeting iOS7 or 10.9 I recommend you stick to the full [Async]( https://github.com/duemunk/Async) for more features and possibly better performance. You will particularly benefit from the availability of the new QoS classes available in iOS8 and OS X 10.10 (Yosemite).
+
+See [this article](http://blog.human-friendly.com/async-dot-legacy-swift-wrapper-for-grand-central-dispatch-ios7-and-os-x-10-dot-9-compatible) about how it works.
 
 **Async** sugar looks like this:
 ```swift
@@ -127,9 +129,9 @@ block.wait()
 
 ### How does it work
 It creates a dispatch group for each block and uses that to notify other blocks to run. In places blocks are wrapped in other blocks to explitly enter or leave groups so that following blocks are appropriately signalled.
-```swift
-// To Be Completed
-```
+
+See [this article](http://blog.human-friendly.com/async-dot-legacy-swift-wrapper-for-grand-central-dispatch-ios7-and-os-x-10-dot-9-compatible) for more details or just review the code, it is fairly short. Get in touch if you have any questions.
+
 The syntax part of the chaining works by having class methods on the `Async` object e.g. `Async.main {}` which returns an Async object. The object has matching methods e.g. `theObject.main {}`. Objects are used so that you can pass the the object by reference so that you can cancel it if required.
 
 ### Known improvements
