@@ -508,7 +508,7 @@ class AsyncTests: XCTestCase {
                 return $0 + 1
         }
 //, block:actualBlock)
-        let block1 = Async.background(0.3, withArgs: i, block: { (c:Int)->Int in
+        let block1 = Async.backgroundA(after: 0.3, withArgs: i, block: { (c:Int)->Int in
             return c + 1 })
 
         let block2 = block1.main {

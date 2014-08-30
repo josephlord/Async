@@ -62,13 +62,13 @@ private class GCD {
 	}
 }
 
-public class Async<S,T> {
+public class Async<A,R> {
     
     //The block to be executed does not need to be retained in present code
     //only the dispatch_group is needed in order to cancel it.
     //private let block: dispatch_block_t
-    private typealias ReturnType = T
-    private typealias ArgumentType = S
+    private typealias ReturnType = R
+    private typealias ArgumentType = A
     private let dgroup: dispatch_group_t = dispatch_group_create()
     private var isCancelled = false
     private var return_value:ReturnType? = nil
@@ -101,27 +101,6 @@ extension Async { // Static methods
         return asyncBlock
 		
 	}
-	class func main<A,R>(block: (A->R), withArgs:A) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.mainQueue(), withArgs:withArgs)
-	}
-	class func userInteractive<A,R>(block: (A->R), withArgs:A) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.userInteractiveQueue(), withArgs:withArgs)
-	}
-	class func userInitiated<A,R>(block: (A->R), withArgs:A) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.userInitiatedQueue(), withArgs:withArgs)
-	}
-	class func default_<A,R>(block: (A->R), withArgs:A) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.defaultQueue(), withArgs:withArgs)
-	}
-	class func utility<A,R>(block: (A->R), withArgs:A) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.utilityQueue(), withArgs:withArgs)
-	}
-	class func background<A,R>(block: (A->R), withArgs:A) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.backgroundQueue(), withArgs: withArgs)
-	}
-	class func customQueue<A,R>(queue: dispatch_queue_t, block: (A->R), withArgs:A) -> Async<A,R> {
-		return Async.async(block, inQueue: queue, withArgs: withArgs)
-	}
 
     class func main<R>(block: ()->R) -> Async<(),R> {
 		return Async.async(block, inQueue: GCD.mainQueue(), withArgs:())
@@ -146,6 +125,30 @@ extension Async { // Static methods
 	}
 
 
+	class func mainA<A,R>(withArgs:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.mainQueue(), withArgs:withArgs)
+	}
+	class func userInteractiveA<A,R>(withArgs:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.userInteractiveQueue(), withArgs:withArgs)
+	}
+	class func userInitiatedA<A,R>(withArgs:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.userInitiatedQueue(), withArgs:withArgs)
+	}
+	class func default_A<A,R>(withArgs:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.defaultQueue(), withArgs:withArgs)
+	}
+	class func utilityA<A,R>(withArgs:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.utilityQueue(), withArgs:withArgs)
+	}
+	class func backgroundA<A,R>(withArgs:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.backgroundQueue(), withArgs: withArgs)
+	}
+	class func customQueueA<A,R>(queue: dispatch_queue_t, withArgs:A, block: (A->R)) -> Async<A,R> {
+		return Async.async(block, inQueue: queue, withArgs: withArgs)
+	}
+    
+
+
 	/* dispatch_after() */
 
 	private class func after<A,R>(seconds: Double, block: A->R, inQueue queue: dispatch_queue_t, withArgs:A) -> Async<A,R> {
@@ -167,27 +170,28 @@ extension Async { // Static methods
         }
 		return asyncBlock
 	}
-	class func main<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
+	class func mainA<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
 		return Async.after(after, block: block, inQueue: GCD.mainQueue(), withArgs:withArgs)
 	}
-	class func userInteractive<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
+	class func userInteractiveA<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
 		return Async.after(after, block: block, inQueue: GCD.userInteractiveQueue(), withArgs:withArgs)
 	}
-	class func userInitiated<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
+	class func userInitiatedA<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
 		return Async.after(after, block: block, inQueue: GCD.userInitiatedQueue(), withArgs:withArgs)
 	}
-	class func default_<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
+	class func default_A<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
 		return Async.after(after, block: block, inQueue: GCD.defaultQueue(), withArgs:withArgs)
 	}
-	class func utility<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
+	class func utilityA<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
 		return Async.after(after, block: block, inQueue: GCD.utilityQueue(), withArgs:withArgs)
 	}
-	class func background<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
+	class func backgroundA<A,R>(#after: Double, withArgs:A, block: A->R) -> Async<A,R> {
 		return Async.after(after, block: block, inQueue: GCD.backgroundQueue(), withArgs:withArgs)
 	}
-	class func customQueue<A,R>(#after: Double, queue: dispatch_queue_t, withArgs:A, block: A->R) -> Async<A,R> {
+	class func customQueueA<A,R>(#after: Double, queue: dispatch_queue_t, withArgs:A, block: A->R) -> Async<A,R> {
 		return Async.after(after, block: block, inQueue: queue, withArgs:withArgs)
 	}
+
 
 	class func main<R>(#after: Double, block: ()->R) -> Async<(),R> {
 		return Async.after(after, block: block, inQueue: GCD.mainQueue(), withArgs:())
