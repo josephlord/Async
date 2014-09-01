@@ -68,7 +68,7 @@ class AsyncTests: XCTestCase {
         let targetDelay:Double = 0.1
         for i in 0..<runCount {
             let time = CFAbsoluteTimeGetCurrent()
-            Async.userInteractiveAfter(after: targetDelay) {
+            Async.userInteractive(after: targetDelay) {
                 let curTime = CFAbsoluteTimeGetCurrent()
                 callTimes.append(curTime - time)
             }.wait()
@@ -234,7 +234,7 @@ class AsyncTests: XCTestCase {
 		let date = CFAbsoluteTimeGetCurrent()
 		let timeDelay = 1.0
 		let upperTimeDelay = timeDelay + 0.2
-		Async.mainAfter(after: timeDelay) {
+		Async.main(after: timeDelay) {
 			let timePassed = CFAbsoluteTimeGetCurrent() - date
 			XCTAssertGreaterThanOrEqual(timePassed, timeDelay - allowEarlyDispatchBy, "Should wait \(timeDelay) seconds before firing")
 			XCTAssertLessThan(timePassed, upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
@@ -253,7 +253,7 @@ class AsyncTests: XCTestCase {
 		let timeDelay2 = 1.2
 		let upperTimeDelay2 = timeDelay2 + 0.2
 		var id = 0
-		Async.userInteractiveAfter(after: timeDelay1) {
+		Async.userInteractive(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date1
@@ -262,7 +262,7 @@ class AsyncTests: XCTestCase {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_USER_INTERACTIVE, "On \(qos_class_self().description) (expected \(QOS_CLASS_USER_INTERACTIVE.description))")
 			
 			date2 = CFAbsoluteTimeGetCurrent() // Update
-		}.utilityAfter(after: timeDelay2) {
+		}.utility(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date2
@@ -283,7 +283,7 @@ class AsyncTests: XCTestCase {
 		let timeDelay2 = 1.2
 		let upperTimeDelay2 = timeDelay2 + 0.2
 		var id = 0
-		Async.userInteractiveAfter(after: timeDelay1) {
+		Async.userInteractive(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date1
@@ -292,7 +292,7 @@ class AsyncTests: XCTestCase {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_USER_INTERACTIVE, "On \(qos_class_self().description) (expected \(QOS_CLASS_USER_INTERACTIVE.description))")
 			
 			date2 = CFAbsoluteTimeGetCurrent() // Update
-		}.userInteractiveAfter(after: timeDelay2) {
+		}.userInteractive(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date2
@@ -313,7 +313,7 @@ class AsyncTests: XCTestCase {
 		let timeDelay2 = 1.2
 		let upperTimeDelay2 = timeDelay2 + 0.2
 		var id = 0
-		Async.userInitiatedAfter(after: timeDelay1) {
+		Async.userInitiated(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date1
@@ -322,7 +322,7 @@ class AsyncTests: XCTestCase {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_USER_INITIATED, "On \(qos_class_self().description) (expected \(QOS_CLASS_USER_INITIATED.description))")
 			
 			date2 = CFAbsoluteTimeGetCurrent() // Update
-		}.userInitiatedAfter(after: timeDelay2) {
+		}.userInitiated(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date2
@@ -344,7 +344,7 @@ class AsyncTests: XCTestCase {
 		let timeDelay2 = 1.2
 		let upperTimeDelay2 = timeDelay2 + 0.2
 		var id = 0
-		Async.default_After(after: timeDelay1) {
+		Async.default_(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date1
@@ -353,7 +353,7 @@ class AsyncTests: XCTestCase {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_DEFAULT, "On \(qos_class_self().description) (expected \(QOS_CLASS_DEFAULT.description))")
 			
 			date2 = CFAbsoluteTimeGetCurrent() // Update
-		}.default_After(after: timeDelay2) {
+		}.default_(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date2
@@ -374,7 +374,7 @@ class AsyncTests: XCTestCase {
 		let timeDelay2 = 1.2
 		let upperTimeDelay2 = timeDelay2 + 0.2
 		var id = 0
-		Async.utilityAfter(after: timeDelay1) {
+		Async.utility(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date1
@@ -383,7 +383,7 @@ class AsyncTests: XCTestCase {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_UTILITY, "On \(qos_class_self().description) (expected \(QOS_CLASS_UTILITY.description))")
 			
 			date2 = CFAbsoluteTimeGetCurrent() // Update
-		}.utilityAfter(after: timeDelay2) {
+		}.utility(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date2
@@ -404,7 +404,7 @@ class AsyncTests: XCTestCase {
 		let timeDelay2 = 1.2
 		let upperTimeDelay2 = timeDelay2 + 0.2
 		var id = 0
-		Async.backgroundAfter(after: timeDelay1) {
+		Async.background(after: timeDelay1) {
 			XCTAssertEqual(++id, 1, "First after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date1
@@ -413,7 +413,7 @@ class AsyncTests: XCTestCase {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_BACKGROUND, "On \(qos_class_self().description) (expected \(QOS_CLASS_BACKGROUND.description))")
 			
 			date2 = CFAbsoluteTimeGetCurrent() // Update
-		}.backgroundAfter(after: timeDelay2) {
+		}.background(after: timeDelay2) {
 			XCTAssertEqual(++id, 2, "Second after")
 			
 			let timePassed = CFAbsoluteTimeGetCurrent() - date2
@@ -440,7 +440,7 @@ class AsyncTests: XCTestCase {
             XCTFail("Shouldn't be reached, since cancelled") // This doesn't work on this thread.
 		}
 		
-		Async.mainAfter(after: 0.01) {
+		Async.main(after: 0.01) {
 			block1.cancel() // First block is _not_ cancelled
 			block2.cancel() // Second block _is_ cancelled
             
@@ -453,7 +453,7 @@ class AsyncTests: XCTestCase {
     func testChainedBlocksAfterCancel() {
         let expectation1 = expectationWithDescription("First block should run")
         let expectation2 = expectationWithDescription("Third and last block should run")
-        let firstBlock = Async.mainAfter(after: 1.0) {
+        let firstBlock = Async.main(after: 1.0) {
             // Something to delay
             expectation1.fulfill()
         }

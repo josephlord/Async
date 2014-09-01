@@ -88,25 +88,25 @@ public class Async {
 		return AsyncInternal.async(block, inQueue: queue, withArgs:())
 	}
 
-	class func mainAfter(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
+	class func main(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
 		return AsyncInternal.after(after, block: block, inQueue: GCD.mainQueue(), withArg:())
 	}
-	class func userInteractiveAfter(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
+	class func userInteractive(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
 		return AsyncInternal.after(after, block: block, inQueue: GCD.userInteractiveQueue(), withArg:())
 	}
-	class func userInitiatedAfter(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
+	class func userInitiated(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
 		return AsyncInternal.after(after, block: block, inQueue: GCD.userInitiatedQueue(), withArg:())
 	}
-	class func default_After(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
+	class func default_(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
 		return AsyncInternal.after(after, block: block, inQueue: GCD.defaultQueue(), withArg:())
 	}
-	class func utilityAfter(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
+	class func utility(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
 		return AsyncInternal.after(after, block: block, inQueue: GCD.utilityQueue(), withArg:())
 	}
-	class func backgroundAfter(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
+	class func background(#after: Double, block: ()->()) -> AsyncInternal<(),()> {
 		return AsyncInternal.after(after, block: block, inQueue: GCD.backgroundQueue(), withArg:())
 	}
-	class func customQueueAfter(#after: Double, queue: dispatch_queue_t, block: ()->()) -> AsyncInternal<(),()> {
+	class func customQueue(#after: Double, queue: dispatch_queue_t, block: ()->()) -> AsyncInternal<(),()> {
 		return AsyncInternal.after(after, block: block, inQueue: queue, withArg:())
 	}
 
@@ -328,44 +328,44 @@ extension AsyncInternal { // Regualar methods matching static once
 	func mainAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
 		return self.after(after, block: block, runInQueue: GCD.mainQueue())
 	}
-	func userInteractiveAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+	func userInteractive(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
 		return self.after(after, block: block, runInQueue: GCD.userInteractiveQueue())
 	}
-	func userInitiatedAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+	func userInitiated(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
 		return self.after(after, block: block, runInQueue: GCD.userInitiatedQueue())
 	}
-	func default_After(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+	func default_(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
 		return self.after(after, block: block, runInQueue: GCD.defaultQueue())
 	}
-	func utilityAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+	func utility(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
 		return self.after(after, block: block, runInQueue: GCD.utilityQueue())
 	}
-	func backgroundAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+	func background(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
 		return self.after(after, block: block, runInQueue: GCD.backgroundQueue())
 	}
-	func customQueueAfter(#after: Double, queue: dispatch_queue_t, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+	func customQueue(#after: Double, queue: dispatch_queue_t, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
 		return self.after(after, block: block, runInQueue: queue)
 	}
 
 	func mainAfter<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.mainQueue())
 	}
-	func userInteractiveAfter<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
+	func userInteractive<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.userInteractiveQueue())
 	}
-	func userInitiatedAfter<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
+	func userInitiated<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.userInitiatedQueue())
 	}
-	func default_After<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
+	func default_<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.defaultQueue())
 	}
-	func utilityAfter<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
+	func utility<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.utilityQueue())
 	}
-	func backgroundAfter<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
+	func background<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.backgroundQueue())
 	}
-	func customQueueAfter<X>(#after: Double, queue: dispatch_queue_t, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
+	func customQueue<X>(#after: Double, queue: dispatch_queue_t, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: queue)
 	}
 
