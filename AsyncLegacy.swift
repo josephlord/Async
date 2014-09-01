@@ -169,7 +169,7 @@ public class AsyncInternal<A,R> {
     //private let block: dispatch_block_t
     private let dgroup: dispatch_group_t = dispatch_group_create()
     private var isCancelled = false
-    private var cancelledWithAlternateValue:ReturnType! // Must be set when cancelling happens.
+//    private var cancelledWithAlternateValue:ReturnType! // Must be set when cancelling happens.
     private let argument:ArgumentType!
     private let chained:Bool
     private var returnedValueOpt:ReturnType?
@@ -195,7 +195,7 @@ extension AsyncInternal
 		let asyncBlock =  AsyncInternal<A,R>(argument:withArgs)
 
         // Add block to queue
-		dispatch_group_async(asyncBlock.dgroup, queue, asyncBlock.cancellable(block))
+		dispatch_group_async(asyncBlock.dgroup, queue, asyncBlock.cancellable(block, withArg:withArgs))
 
         return asyncBlock
 		
@@ -214,7 +214,7 @@ extension AsyncInternal
         let asyncBlock = AsyncInternal<A,R>(argument: withArg)
         dispatch_group_enter(asyncBlock.dgroup)
         dispatch_after(time, queue){
-            let cancellableBlock = asyncBlock.cancellable(block)
+            let cancellableBlock = asyncBlock.cancellable(block, withArg:withArg)
             cancellableBlock() // Compiler crashed in Beta6 when I just did asyncBlock.cancellable(block) directly.
             dispatch_group_leave(asyncBlock.dgroup)
         }
@@ -231,22 +231,53 @@ extension AsyncInternal { // Regualar methods matching static once
         let asyncBlock = AsyncInternal<ReturnType,X>(chained: true)
         dispatch_group_enter(asyncBlock.dgroup)
         dispatch_group_notify(self.dgroup, queue) {
-            let cancellableChainingBlock = asyncBlock.cancellable(chainingBlock)
+            let cancellableChainingBlock = self.cancellable(chainingBlock, nextBlock:asyncBlock)
             cancellableChainingBlock()
             dispatch_group_leave(asyncBlock.dgroup)
         }
 		return asyncBlock
 	}
-    
-    private func cancellable(blockToWrap:ArgumentType->ReturnType) -> ()->() {
+
+    private func cancellable(blockToWrap:ArgumentType->ReturnType, withArg:ArgumentType) -> ()->() {
         // Retains self in case it is cancelled and then released.
         return {
             if !self.isCancelled {
-                self.returnedValueOpt = blockToWrap(self.argument)
+                self.returnedValueOpt = blockToWrap(withArg)
+            }
+        }
+    }
+
+    private func cancellable<X>(blockToWrap:ReturnType->X, nextBlock:AsyncInternal<ReturnType, X>) -> ()->() {
+        // Retains self in case it is cancelled and then released.
+        return {
+            if !nextBlock.isCancelled {
+                nextBlock.returnedValueOpt = blockToWrap(self.returnedValueOpt!)
             }
         }
     }
 	
+    func main(chainingBlock: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return chain(block: chainingBlock, runInQueue: GCD.mainQueue())
+	}
+    func userInteractive(chainingBlock: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return chain(block: chainingBlock, runInQueue: GCD.userInteractiveQueue())
+	}
+	func userInitiated(chainingBlock: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return chain(block: chainingBlock, runInQueue: GCD.userInitiatedQueue())
+	}
+	func default_(chainingBlock: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return chain(block: chainingBlock, runInQueue: GCD.defaultQueue())
+	}
+	func utility(chainingBlock: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return chain(block: chainingBlock, runInQueue: GCD.utilityQueue())
+	}
+	func background(chainingBlock: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return chain(block: chainingBlock, runInQueue: GCD.backgroundQueue())
+	}
+	func customQueue(queue: dispatch_queue_t, chainingBlock: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return chain(block: chainingBlock, runInQueue: queue)
+	}
+
 	func main<X>(chainingBlock: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.mainQueue())
 	}
@@ -282,7 +313,7 @@ extension AsyncInternal { // Regualar methods matching static once
             let nanoSeconds = Int64(seconds * Double(NSEC_PER_SEC))
             let time = dispatch_time(DISPATCH_TIME_NOW, nanoSeconds)
             dispatch_after(time, queue) {
-                let cancellableChainingBlock = asyncBlock.cancellable(chainingBlock)
+                let cancellableChainingBlock = self.cancellable(chainingBlock, nextBlock: asyncBlock)
                 cancellableChainingBlock()
                 dispatch_group_leave(asyncBlock.dgroup)
             }
@@ -292,6 +323,29 @@ extension AsyncInternal { // Regualar methods matching static once
 		// Wrap block in a struct since dispatch_block_t can't be extended
 		return asyncBlock
 	}
+
+	func mainAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return self.after(after, block: block, runInQueue: GCD.mainQueue())
+	}
+	func userInteractiveAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return self.after(after, block: block, runInQueue: GCD.userInteractiveQueue())
+	}
+	func userInitiatedAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return self.after(after, block: block, runInQueue: GCD.userInitiatedQueue())
+	}
+	func default_After(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return self.after(after, block: block, runInQueue: GCD.defaultQueue())
+	}
+	func utilityAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return self.after(after, block: block, runInQueue: GCD.utilityQueue())
+	}
+	func backgroundAfter(#after: Double, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return self.after(after, block: block, runInQueue: GCD.backgroundQueue())
+	}
+	func customQueueAfter(#after: Double, queue: dispatch_queue_t, block: ReturnType->()) -> AsyncInternal<ReturnType,()> {
+		return self.after(after, block: block, runInQueue: queue)
+	}
+
 	func mainAfter<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.mainQueue())
 	}
@@ -322,7 +376,7 @@ extension AsyncInternal { // Regualar methods matching static once
         // should result in some boolean value and the cancel will only cancel
         // if the execution has not yet started.
         isCancelled = true
-        cancelledWithAlternateValue = withValue
+        returnedValueOpt = withValue
     }
 
 	/* wait */
@@ -338,7 +392,6 @@ extension AsyncInternal { // Regualar methods matching static once
 		}
 	}
 }
-
 
 // Convenience
 
