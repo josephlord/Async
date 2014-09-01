@@ -68,7 +68,7 @@ class AsyncTests: XCTestCase {
         let targetDelay:Double = 0.1
         for i in 0..<runCount {
             let time = CFAbsoluteTimeGetCurrent()
-            Async<.userInteractive(after: targetDelay) {
+            Async.userInteractiveAfter(after: targetDelay) {
                 let curTime = CFAbsoluteTimeGetCurrent()
                 callTimes.append(curTime - time)
             }.wait()
@@ -141,12 +141,15 @@ class AsyncTests: XCTestCase {
 	}
 	
 	func testAsyncBackgroundToMain() {
+        let expectation0 = expectationWithDescription("Expected on background queue")
 		let expectation = expectationWithDescription("Expected on background to main queue")
 		var wasInBackground = false
 		Async.background {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_BACKGROUND, "On \(qos_class_self().description) (expected \(QOS_CLASS_BACKGROUND.description))")
 			wasInBackground = true
-		}.main {
+            expectation0.fulfill()
+            
+        }.main {
             //	XCTAssertEqual(+qos_class_self(), +qos_class_main(), "On \(qos_class_self().description) (expected \(qos_class_main().description))")
 			XCTAssert(wasInBackground, "Was in background first")
 			expectation.fulfill()
