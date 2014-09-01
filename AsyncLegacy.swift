@@ -62,16 +62,19 @@ private class GCD {
 	}
 }
 
-public class AsyncPlus {
-    public class func main<A,R>(withArg:A, block: A->R) -> Async<A,R> {
-		return Async<A,R>.async(block, inQueue: GCD.mainQueue(), withArgs:withArg)
-	}
-    public class func main<R>(block: ()->R) -> Async<(),R> {
-		return Async<(),R>.async(block, inQueue: GCD.mainQueue(), withArgs:())
+public class Async {
+    public class func main<R>(block: ()->R) -> AsyncInternal<(),R> {
+		return AsyncInternal<(),R>.async(block, inQueue: GCD.mainQueue(), withArgs:())
+    }
+}
+
+public class AsyncPlus : Async {
+    public class func main<A,R>(withArg:A, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal<A,R>.async(block, inQueue: GCD.mainQueue(), withArgs:withArg)
 	}
 }
 
-public class Async<A,R> {
+public class AsyncInternal<A,R> {
     
     //The block to be executed does not need to be retained in present code
     //only the dispatch_group is needed in order to cancel it.
@@ -94,14 +97,14 @@ public class Async<A,R> {
     // Static methods
 }
 
-extension Async
+extension AsyncInternal
 {
     
     /* dispatch_async() */
 
-	private class func async(block: A->R, inQueue queue: dispatch_queue_t, withArgs:A) -> Async<A,R> {
+	private class func async(block: A->R, inQueue queue: dispatch_queue_t, withArgs:A) -> AsyncInternal<A,R> {
         // Wrap block in a struct since dispatch_block_t can't be extended and to give it a group
-		let asyncBlock =  Async<A,R>(argument:withArgs)
+		let asyncBlock =  AsyncInternal<A,R>(argument:withArgs)
 
         // Add block to queue
 		dispatch_group_async(asyncBlock.dgroup, queue, asyncBlock.cancellable(block))
@@ -109,39 +112,39 @@ extension Async
         return asyncBlock
 		
 	}
-	class func main(withArg:A, block: A->R) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.mainQueue(), withArgs:withArg)
+	class func main(withArg:A, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal.async(block, inQueue: GCD.mainQueue(), withArgs:withArg)
 	}
-	class func userInteractive(withArg:A, block: A->R) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.userInteractiveQueue(), withArgs:withArg)
+	class func userInteractive(withArg:A, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal.async(block, inQueue: GCD.userInteractiveQueue(), withArgs:withArg)
 	}
-	class func userInitiated(withArg:A, block: A->R) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.userInitiatedQueue(), withArgs:withArg)
+	class func userInitiated(withArg:A, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal.async(block, inQueue: GCD.userInitiatedQueue(), withArgs:withArg)
 	}
-	class func default_(withArg:A, block: A->R) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.defaultQueue(), withArgs:withArg)
+	class func default_(withArg:A, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal.async(block, inQueue: GCD.defaultQueue(), withArgs:withArg)
 	}
-	class func utility(withArg:A, block: A->R) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.utilityQueue(), withArgs:withArg)
+	class func utility(withArg:A, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal.async(block, inQueue: GCD.utilityQueue(), withArgs:withArg)
 	}
-	class func background(withArg:A, block: A->R) -> Async<A,R> {
-		return Async.async(block, inQueue: GCD.backgroundQueue(), withArgs:withArg)
+	class func background(withArg:A, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal.async(block, inQueue: GCD.backgroundQueue(), withArgs:withArg)
 	}
-	class func customQueue(withArg:A, queue: dispatch_queue_t, block: A->R) -> Async<A,R> {
-		return Async.async(block, inQueue: queue, withArgs:withArg)
+	class func customQueue(withArg:A, queue: dispatch_queue_t, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal.async(block, inQueue: queue, withArgs:withArg)
 	}
 
 
 	/* dispatch_after() */
 
-	private class func after(seconds: Double, block: A->R, inQueue queue: dispatch_queue_t, withArg:A) -> Async<A,R> {
+	private class func after(seconds: Double, block: A->R, inQueue queue: dispatch_queue_t, withArg:A) -> AsyncInternal<A,R> {
 		let nanoSeconds = Int64(seconds * Double(NSEC_PER_SEC))
 		let time = dispatch_time(DISPATCH_TIME_NOW, nanoSeconds)
 		return at(time, block: block, inQueue: queue, withArg:withArg)
 	}
-	private class func at(time: dispatch_time_t, block: A->R, inQueue queue: dispatch_queue_t, withArg:A) -> Async<A,R> {
+	private class func at(time: dispatch_time_t, block: A->R, inQueue queue: dispatch_queue_t, withArg:A) -> AsyncInternal<A,R> {
 		// See Async.async() for comments
-        let asyncBlock = Async<A,R>(argument: withArg)
+        let asyncBlock = AsyncInternal<A,R>(argument: withArg)
         dispatch_group_enter(asyncBlock.dgroup)
         dispatch_after(time, queue){
             let cancellableBlock = asyncBlock.cancellable(block)
@@ -150,35 +153,35 @@ extension Async
         }
 		return asyncBlock
 	}
-	class func main(#after: Double, withArg:A, block: A->R) -> Async<A,R> {
-		return Async.after(after, block: block, inQueue: GCD.mainQueue(), withArg:withArg)
+	class func main(#after: Double, withArg:A, block: A->R) -> AsyncInternal<A,R> {
+		return AsyncInternal.after(after, block: block, inQueue: GCD.mainQueue(), withArg:withArg)
 	}
-	class func userInteractive(#after: Double, withArg:A, block: A->R) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.userInteractiveQueue(), withArg:withArg)
+	class func userInteractive(#after: Double, withArg:A, block: A->R) -> AsyncInternal {
+		return AsyncInternal.after(after, block: block, inQueue: GCD.userInteractiveQueue(), withArg:withArg)
 	}
-	class func userInitiated(#after: Double, withArg:A, block: A->R) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.userInitiatedQueue(), withArg:withArg)
+	class func userInitiated(#after: Double, withArg:A, block: A->R) -> AsyncInternal {
+		return AsyncInternal.after(after, block: block, inQueue: GCD.userInitiatedQueue(), withArg:withArg)
 	}
-	class func default_(#after: Double, withArg:A, block: A->R) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.defaultQueue(), withArg:withArg)
+	class func default_(#after: Double, withArg:A, block: A->R) -> AsyncInternal {
+		return AsyncInternal.after(after, block: block, inQueue: GCD.defaultQueue(), withArg:withArg)
 	}
-	class func utility(#after: Double, withArg:A, block: A->R) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.utilityQueue(), withArg:withArg)
+	class func utility(#after: Double, withArg:A, block: A->R) -> AsyncInternal {
+		return AsyncInternal.after(after, block: block, inQueue: GCD.utilityQueue(), withArg:withArg)
 	}
-	class func background(#after: Double, withArg:A, block: A->R) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.backgroundQueue(), withArg:withArg)
+	class func background(#after: Double, withArg:A, block: A->R) -> AsyncInternal {
+		return AsyncInternal.after(after, block: block, inQueue: GCD.backgroundQueue(), withArg:withArg)
 	}
-	class func customQueue(#after: Double, withArg:A, queue: dispatch_queue_t, block: A->R) -> Async {
-		return Async.after(after, block: block, inQueue: queue, withArg:withArg)
+	class func customQueue(#after: Double, withArg:A, queue: dispatch_queue_t, block: A->R) -> AsyncInternal {
+		return AsyncInternal.after(after, block: block, inQueue: queue, withArg:withArg)
 	}
 }
 
 
-extension Async { // Regualar methods matching static once
+extension AsyncInternal { // Regualar methods matching static once
 	
-	private func chain<X>(block chainingBlock: ReturnType->X, runInQueue queue: dispatch_queue_t) -> Async<ReturnType,X> {
-		// See Async.async() for comments
-        let asyncBlock = Async<ReturnType,X>(chained: true)
+	private func chain<X>(block chainingBlock: ReturnType->X, runInQueue queue: dispatch_queue_t) -> AsyncInternal<ReturnType,X> {
+		// See AsyncInternal.async() for comments
+        let asyncBlock = AsyncInternal<ReturnType,X>(chained: true)
         dispatch_group_enter(asyncBlock.dgroup)
         dispatch_group_notify(self.dgroup, queue) {
             let cancellableChainingBlock = asyncBlock.cancellable(chainingBlock)
@@ -197,34 +200,34 @@ extension Async { // Regualar methods matching static once
         }
     }
 	
-	func main<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
+	func main<X>(chainingBlock: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.mainQueue())
 	}
-	func userInteractive<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
+	func userInteractive<X>(chainingBlock: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.userInteractiveQueue())
 	}
-	func userInitiated<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
+	func userInitiated<X>(chainingBlock: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.userInitiatedQueue())
 	}
-	func default_<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
+	func default_<X>(chainingBlock: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.defaultQueue())
 	}
-	func utility<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
+	func utility<X>(chainingBlock: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.utilityQueue())
 	}
-	func background<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
+	func background<X>(chainingBlock: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.backgroundQueue())
 	}
-	func customQueue<X>(queue: dispatch_queue_t, chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
+	func customQueue<X>(queue: dispatch_queue_t, chainingBlock: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: queue)
 	}
 
 	
 	/* dispatch_after() */
 
-	private func after<X>(seconds: Double, block chainingBlock: ReturnType->X, runInQueue queue: dispatch_queue_t) -> Async<ReturnType,X> {
+	private func after<X>(seconds: Double, block chainingBlock: ReturnType->X, runInQueue queue: dispatch_queue_t) -> AsyncInternal<ReturnType,X> {
         
-        var asyncBlock = Async<ReturnType,X>(chained: true)
+        var asyncBlock = AsyncInternal<ReturnType,X>(chained: true)
         
         dispatch_group_notify(self.dgroup, queue)
         {
@@ -242,25 +245,25 @@ extension Async { // Regualar methods matching static once
 		// Wrap block in a struct since dispatch_block_t can't be extended
 		return asyncBlock
 	}
-	func main<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
+	func main<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.mainQueue())
 	}
-	func userInteractive<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
+	func userInteractive<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.userInteractiveQueue())
 	}
-	func userInitiated<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
+	func userInitiated<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.userInitiatedQueue())
 	}
-	func default_<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
+	func default_<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.defaultQueue())
 	}
-	func utility<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
+	func utility<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.utilityQueue())
 	}
-	func background<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
+	func background<X>(#after: Double, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.backgroundQueue())
 	}
-	func customQueue<X>(#after: Double, queue: dispatch_queue_t, block: ReturnType->X) -> Async<ReturnType,X> {
+	func customQueue<X>(#after: Double, queue: dispatch_queue_t, block: ReturnType->X) -> AsyncInternal<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: queue)
 	}
 
