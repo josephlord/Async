@@ -62,26 +62,46 @@ private class GCD {
 	}
 }
 
-public class Async {
+public class AsyncPlus {
+    public class func main<A,R>(withArg:A, block: A->R) -> Async<A,R> {
+		return Async<A,R>.async(block, inQueue: GCD.mainQueue(), withArgs:withArg)
+	}
+    public class func main<R>(block: ()->R) -> Async<(),R> {
+		return Async<(),R>.async(block, inQueue: GCD.mainQueue(), withArgs:())
+	}
+}
+
+public class Async<A,R> {
     
     //The block to be executed does not need to be retained in present code
     //only the dispatch_group is needed in order to cancel it.
     //private let block: dispatch_block_t
     private let dgroup: dispatch_group_t = dispatch_group_create()
     private var isCancelled = false
-    private init() {}
-    
+    private var cancelledWithAlternateValue:ReturnType! // Must be set when cancelling happens.
+    private let argument:ArgumentType!
+    private let chained:Bool
+    private var returnedValueOpt:ReturnType?
+    private init(argument:ArgumentType) {
+        self.argument = argument
+        self.chained = false
+    }
+    private init(chained: Bool) {
+        self.chained = true
+    }
+    typealias ReturnType = R
+    typealias ArgumentType = A
+    // Static methods
 }
 
+extension Async
+{
+    
+    /* dispatch_async() */
 
-extension Async { // Static methods
-
-	
-	/* dispatch_async() */
-
-	private class func async(block: dispatch_block_t, inQueue queue: dispatch_queue_t) -> Async {
+	private class func async(block: A->R, inQueue queue: dispatch_queue_t, withArgs:A) -> Async<A,R> {
         // Wrap block in a struct since dispatch_block_t can't be extended and to give it a group
-		let asyncBlock =  Async()
+		let asyncBlock =  Async<A,R>(argument:withArgs)
 
         // Add block to queue
 		dispatch_group_async(asyncBlock.dgroup, queue, asyncBlock.cancellable(block))
@@ -89,39 +109,39 @@ extension Async { // Static methods
         return asyncBlock
 		
 	}
-	class func main(block: dispatch_block_t) -> Async {
-		return Async.async(block, inQueue: GCD.mainQueue())
+	class func main(withArg:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.mainQueue(), withArgs:withArg)
 	}
-	class func userInteractive(block: dispatch_block_t) -> Async {
-		return Async.async(block, inQueue: GCD.userInteractiveQueue())
+	class func userInteractive(withArg:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.userInteractiveQueue(), withArgs:withArg)
 	}
-	class func userInitiated(block: dispatch_block_t) -> Async {
-		return Async.async(block, inQueue: GCD.userInitiatedQueue())
+	class func userInitiated(withArg:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.userInitiatedQueue(), withArgs:withArg)
 	}
-	class func default_(block: dispatch_block_t) -> Async {
-		return Async.async(block, inQueue: GCD.defaultQueue())
+	class func default_(withArg:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.defaultQueue(), withArgs:withArg)
 	}
-	class func utility(block: dispatch_block_t) -> Async {
-		return Async.async(block, inQueue: GCD.utilityQueue())
+	class func utility(withArg:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.utilityQueue(), withArgs:withArg)
 	}
-	class func background(block: dispatch_block_t) -> Async {
-		return Async.async(block, inQueue: GCD.backgroundQueue())
+	class func background(withArg:A, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: GCD.backgroundQueue(), withArgs:withArg)
 	}
-	class func customQueue(queue: dispatch_queue_t, block: dispatch_block_t) -> Async {
-		return Async.async(block, inQueue: queue)
+	class func customQueue(withArg:A, queue: dispatch_queue_t, block: A->R) -> Async<A,R> {
+		return Async.async(block, inQueue: queue, withArgs:withArg)
 	}
 
 
 	/* dispatch_after() */
 
-	private class func after(seconds: Double, block: dispatch_block_t, inQueue queue: dispatch_queue_t) -> Async {
+	private class func after(seconds: Double, block: A->R, inQueue queue: dispatch_queue_t, withArg:A) -> Async<A,R> {
 		let nanoSeconds = Int64(seconds * Double(NSEC_PER_SEC))
 		let time = dispatch_time(DISPATCH_TIME_NOW, nanoSeconds)
-		return at(time, block: block, inQueue: queue)
+		return at(time, block: block, inQueue: queue, withArg:withArg)
 	}
-	private class func at(time: dispatch_time_t, block: dispatch_block_t, inQueue queue: dispatch_queue_t) -> Async {
+	private class func at(time: dispatch_time_t, block: A->R, inQueue queue: dispatch_queue_t, withArg:A) -> Async<A,R> {
 		// See Async.async() for comments
-        let asyncBlock = Async()
+        let asyncBlock = Async<A,R>(argument: withArg)
         dispatch_group_enter(asyncBlock.dgroup)
         dispatch_after(time, queue){
             let cancellableBlock = asyncBlock.cancellable(block)
@@ -130,35 +150,35 @@ extension Async { // Static methods
         }
 		return asyncBlock
 	}
-	class func main(#after: Double, block: dispatch_block_t) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.mainQueue())
+	class func main(#after: Double, withArg:A, block: A->R) -> Async<A,R> {
+		return Async.after(after, block: block, inQueue: GCD.mainQueue(), withArg:withArg)
 	}
-	class func userInteractive(#after: Double, block: dispatch_block_t) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.userInteractiveQueue())
+	class func userInteractive(#after: Double, withArg:A, block: A->R) -> Async {
+		return Async.after(after, block: block, inQueue: GCD.userInteractiveQueue(), withArg:withArg)
 	}
-	class func userInitiated(#after: Double, block: dispatch_block_t) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.userInitiatedQueue())
+	class func userInitiated(#after: Double, withArg:A, block: A->R) -> Async {
+		return Async.after(after, block: block, inQueue: GCD.userInitiatedQueue(), withArg:withArg)
 	}
-	class func default_(#after: Double, block: dispatch_block_t) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.defaultQueue())
+	class func default_(#after: Double, withArg:A, block: A->R) -> Async {
+		return Async.after(after, block: block, inQueue: GCD.defaultQueue(), withArg:withArg)
 	}
-	class func utility(#after: Double, block: dispatch_block_t) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.utilityQueue())
+	class func utility(#after: Double, withArg:A, block: A->R) -> Async {
+		return Async.after(after, block: block, inQueue: GCD.utilityQueue(), withArg:withArg)
 	}
-	class func background(#after: Double, block: dispatch_block_t) -> Async {
-		return Async.after(after, block: block, inQueue: GCD.backgroundQueue())
+	class func background(#after: Double, withArg:A, block: A->R) -> Async {
+		return Async.after(after, block: block, inQueue: GCD.backgroundQueue(), withArg:withArg)
 	}
-	class func customQueue(#after: Double, queue: dispatch_queue_t, block: dispatch_block_t) -> Async {
-		return Async.after(after, block: block, inQueue: queue)
+	class func customQueue(#after: Double, withArg:A, queue: dispatch_queue_t, block: A->R) -> Async {
+		return Async.after(after, block: block, inQueue: queue, withArg:withArg)
 	}
 }
 
 
 extension Async { // Regualar methods matching static once
 	
-	private func chain(block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> Async {
+	private func chain<X>(block chainingBlock: ReturnType->X, runInQueue queue: dispatch_queue_t) -> Async<ReturnType,X> {
 		// See Async.async() for comments
-        let asyncBlock = Async()
+        let asyncBlock = Async<ReturnType,X>(chained: true)
         dispatch_group_enter(asyncBlock.dgroup)
         dispatch_group_notify(self.dgroup, queue) {
             let cancellableChainingBlock = asyncBlock.cancellable(chainingBlock)
@@ -168,43 +188,43 @@ extension Async { // Regualar methods matching static once
 		return asyncBlock
 	}
     
-    private func cancellable(blockToWrap: dispatch_block_t) -> dispatch_block_t {
+    private func cancellable(blockToWrap:ArgumentType->ReturnType) -> ()->() {
         // Retains self in case it is cancelled and then released.
         return {
             if !self.isCancelled {
-                blockToWrap()
+                self.returnedValueOpt = blockToWrap(self.argument)
             }
         }
     }
 	
-	func main(chainingBlock: dispatch_block_t) -> Async {
+	func main<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.mainQueue())
 	}
-	func userInteractive(chainingBlock: dispatch_block_t) -> Async {
+	func userInteractive<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.userInteractiveQueue())
 	}
-	func userInitiated(chainingBlock: dispatch_block_t) -> Async {
+	func userInitiated<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.userInitiatedQueue())
 	}
-	func default_(chainingBlock: dispatch_block_t) -> Async {
+	func default_<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.defaultQueue())
 	}
-	func utility(chainingBlock: dispatch_block_t) -> Async {
+	func utility<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.utilityQueue())
 	}
-	func background(chainingBlock: dispatch_block_t) -> Async {
+	func background<X>(chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: GCD.backgroundQueue())
 	}
-	func customQueue(queue: dispatch_queue_t, chainingBlock: dispatch_block_t) -> Async {
+	func customQueue<X>(queue: dispatch_queue_t, chainingBlock: ReturnType->X) -> Async<ReturnType,X> {
 		return chain(block: chainingBlock, runInQueue: queue)
 	}
 
 	
 	/* dispatch_after() */
 
-	private func after(seconds: Double, block chainingBlock: dispatch_block_t, runInQueue queue: dispatch_queue_t) -> Async {
+	private func after<X>(seconds: Double, block chainingBlock: ReturnType->X, runInQueue queue: dispatch_queue_t) -> Async<ReturnType,X> {
         
-        var asyncBlock = Async()
+        var asyncBlock = Async<ReturnType,X>(chained: true)
         
         dispatch_group_notify(self.dgroup, queue)
         {
@@ -212,7 +232,7 @@ extension Async { // Regualar methods matching static once
             let nanoSeconds = Int64(seconds * Double(NSEC_PER_SEC))
             let time = dispatch_time(DISPATCH_TIME_NOW, nanoSeconds)
             dispatch_after(time, queue) {
-                let cancellableChainingBlock = self.cancellable(chainingBlock)
+                let cancellableChainingBlock = asyncBlock.cancellable(chainingBlock)
                 cancellableChainingBlock()
                 dispatch_group_leave(asyncBlock.dgroup)
             }
@@ -222,36 +242,37 @@ extension Async { // Regualar methods matching static once
 		// Wrap block in a struct since dispatch_block_t can't be extended
 		return asyncBlock
 	}
-	func main(#after: Double, block: dispatch_block_t) -> Async {
+	func main<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.mainQueue())
 	}
-	func userInteractive(#after: Double, block: dispatch_block_t) -> Async {
+	func userInteractive<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.userInteractiveQueue())
 	}
-	func userInitiated(#after: Double, block: dispatch_block_t) -> Async {
+	func userInitiated<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.userInitiatedQueue())
 	}
-	func default_(#after: Double, block: dispatch_block_t) -> Async {
+	func default_<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.defaultQueue())
 	}
-	func utility(#after: Double, block: dispatch_block_t) -> Async {
+	func utility<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.utilityQueue())
 	}
-	func background(#after: Double, block: dispatch_block_t) -> Async {
+	func background<X>(#after: Double, block: ReturnType->X) -> Async<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: GCD.backgroundQueue())
 	}
-	func customQueue(#after: Double, queue: dispatch_queue_t, block: dispatch_block_t) -> Async {
+	func customQueue<X>(#after: Double, queue: dispatch_queue_t, block: ReturnType->X) -> Async<ReturnType,X> {
 		return self.after(after, block: block, runInQueue: queue)
 	}
 
 
 	/* cancel */
 
-     func cancel() {
+     func cancel(withValue:ReturnType) {
         // I don't think that syncronisation is necessary. Any combination of multiple access
         // should result in some boolean value and the cancel will only cancel
         // if the execution has not yet started.
         isCancelled = true
+        cancelledWithAlternateValue = withValue
     }
 
 	/* wait */

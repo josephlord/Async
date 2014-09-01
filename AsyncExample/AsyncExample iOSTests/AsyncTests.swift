@@ -68,7 +68,7 @@ class AsyncTests: XCTestCase {
         let targetDelay:Double = 0.1
         for i in 0..<runCount {
             let time = CFAbsoluteTimeGetCurrent()
-            Async.userInteractive(after: targetDelay) {
+            Async<.userInteractive(after: targetDelay) {
                 let curTime = CFAbsoluteTimeGetCurrent()
                 callTimes.append(curTime - time)
             }.wait()
@@ -500,4 +500,19 @@ class AsyncTests: XCTestCase {
 		let timePassed = CFAbsoluteTimeGetCurrent() - date
 		XCTAssertLessThan(timePassed, upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
 	}
+    
+    func testReturnType() {
+        var id = 0
+        let block = Async.background { ()->Int in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 1, "")
+            return 1
+        }
+        XCTAssertEqual(id, 0, "")
+        
+        let returned_value = block.waitResult()
+        XCTAssertEqual(returned_value, 1)
+        XCTAssertEqual(++id, 2, "")
+    }
 }
