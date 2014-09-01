@@ -169,7 +169,6 @@ public class AsyncInternal<A,R> {
     //private let block: dispatch_block_t
     private let dgroup: dispatch_group_t = dispatch_group_create()
     private var isCancelled = false
-//    private var cancelledWithAlternateValue:ReturnType! // Must be set when cancelling happens.
     private let argument:ArgumentType!
     private let chained:Bool
     private var returnedValueOpt:ReturnType?
@@ -177,7 +176,9 @@ public class AsyncInternal<A,R> {
         self.argument = argument
         self.chained = false
     }
+    // This initialiser has arguments to help me remember it is only for use in an explictly chained scenario.
     private init(chained: Bool) {
+        assert(chained == true)
         self.chained = true
     }
     typealias ReturnType = R
@@ -391,6 +392,14 @@ extension AsyncInternal { // Regualar methods matching static once
 			dispatch_group_wait(dgroup, DISPATCH_TIME_FOREVER)
 		}
 	}
+
+/*    func waitResult(seconds: Double = 0.0)->ReturnType? {
+        
+    }*/
+    func waitResult()->ReturnType {
+        dispatch_group_wait(dgroup,DISPATCH_TIME_FOREVER)
+        return returnedValueOpt! // Must be set in the return or cancel
+    }
 }
 
 // Convenience

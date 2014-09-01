@@ -144,13 +144,12 @@ class AsyncTests: XCTestCase {
         let expectation0 = expectationWithDescription("Expected on background queue")
 		let expectation = expectationWithDescription("Expected on background to main queue")
 		var wasInBackground = false
-		let bgCall = Async.background {
+        Async.background {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_BACKGROUND, "On \(qos_class_self().description) (expected \(QOS_CLASS_BACKGROUND.description))")
 			wasInBackground = true
             expectation0.fulfill()
             
-        }
-        bgCall.main {
+        }.main {
             //	XCTAssertEqual(+qos_class_self(), +qos_class_main(), "On \(qos_class_self().description) (expected \(qos_class_main().description))")
 			XCTAssert(wasInBackground, "Was in background first")
 			expectation.fulfill()
@@ -504,19 +503,19 @@ class AsyncTests: XCTestCase {
 		let timePassed = CFAbsoluteTimeGetCurrent() - date
 		XCTAssertLessThan(timePassed, upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
 	}
-/*
+
     func testReturnType() {
         var id = 0
-        let block = AsyncPlus.background { ()->Int in
+        let block = AsyncPlus.background((), block: { ()->Int in
             // Medium light work
             println("Fib 12 = \(dumbFibonachi(12))")
             XCTAssertEqual(++id, 1, "")
             return 1
-        }
+        })
         XCTAssertEqual(id, 0, "")
         
         let returned_value = block.waitResult()
         XCTAssertEqual(returned_value, 1)
         XCTAssertEqual(++id, 2, "")
-    }*/
+    }
 }
