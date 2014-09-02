@@ -29,6 +29,8 @@ func heavyWork() {
 }
 let allowEarlyDispatchBy = 0.001
 
+let stringArray = ["an", "earthquake", "birds", "and", "snakes"]
+
 class AsyncTests: XCTestCase {
     
     
@@ -141,12 +143,15 @@ class AsyncTests: XCTestCase {
 	}
 	
 	func testAsyncBackgroundToMain() {
+        let expectation0 = expectationWithDescription("Expected on background queue")
 		let expectation = expectationWithDescription("Expected on background to main queue")
 		var wasInBackground = false
-		Async.background {
+        Async.background {
             //	XCTAssertEqual(+qos_class_self(), +QOS_CLASS_BACKGROUND, "On \(qos_class_self().description) (expected \(QOS_CLASS_BACKGROUND.description))")
 			wasInBackground = true
-		}.main {
+            expectation0.fulfill()
+            
+        }.main {
             //	XCTAssertEqual(+qos_class_self(), +qos_class_main(), "On \(qos_class_self().description) (expected \(qos_class_main().description))")
 			XCTAssert(wasInBackground, "Was in background first")
 			expectation.fulfill()
@@ -196,7 +201,7 @@ class AsyncTests: XCTestCase {
 		let customQueue = dispatch_queue_create("CustomQueueLabel", DISPATCH_QUEUE_CONCURRENT)
 		let otherCustomQueue = dispatch_queue_create("OtherCustomQueueLabel", DISPATCH_QUEUE_SERIAL)
 		Async.customQueue(customQueue) {
-			XCTAssertEqual(++id, 1, "Count custom queue")
+			XCTAssertEqual(++id, Int(1), "Count custom queue")
 		}.customQueue(otherCustomQueue) {
 			XCTAssertEqual(++id, 2, "Count other custom queue")
 			expectation.fulfill()
@@ -500,4 +505,82 @@ class AsyncTests: XCTestCase {
 		let timePassed = CFAbsoluteTimeGetCurrent() - date
 		XCTAssertLessThan(timePassed, upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
 	}
+
+    func testReturnClosure() {
+        var id = 0
+        let block = AsyncPlus.background((), block: { ()->Int in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 1, "")
+            return 1
+        })
+        XCTAssertEqual(id, 0, "")
+        
+        let returned_value = block.waitResult()
+        XCTAssertEqual(returned_value, 1)
+        XCTAssertEqual(++id, 2, "")
+    }
+
+    func testArgumentClosure() {
+        var id = 0
+        let expectation = expectationWithDescription("Block ran")
+        let block = AsyncPlus.background(5, block: { (i:Int)->() in
+            // Medium light work
+            println("Argument received = \(i) - DumbFib(12) = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 1, "")
+            XCTAssertEqual(i, 5)
+            expectation.fulfill()
+        })
+        XCTAssertEqual(id, 0, "")
+        
+        block.wait()
+        XCTAssertEqual(++id, 2, "")
+        waitForExpectationsWithTimeout(0, handler: nil)
+    }
+
+    func testArgumentReturnClosure() {
+        var id = 0
+        let expectation = expectationWithDescription("block did run")
+        let block = AsyncPlus.background(2, block: { (i:Int)->String in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 1, "")
+            XCTAssertEqual(i, 2)
+            expectation.fulfill()
+            return stringArray[i]
+        })
+        XCTAssertEqual(id, 0, "")
+        
+        let returned_value = block.waitResult()
+        XCTAssertEqual(returned_value, "birds")
+        XCTAssertEqual(++id, 2, "")
+        waitForExpectationsWithTimeout(0, handler: nil)
+    }
+
+    func testArgumentReturnChainedClosures() {
+        var id = 0
+        let expectation0 = expectationWithDescription("first block did run")
+        let expectation1 = expectationWithDescription("second block did run")
+        let block0 = AsyncPlus.background((), block: { ()->Int in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 1, "")
+            expectation0.fulfill()
+            return 4
+        })
+        let block1 = block0.background({ (i:Int)->String in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 2, "")
+            XCTAssertEqual(i, 4)
+            expectation1.fulfill()
+            return stringArray[i]
+        })
+        XCTAssertEqual(id, 0, "")
+        
+        let returned_value = block1.waitResult()
+        XCTAssertEqual(returned_value, "snakes")
+        XCTAssertEqual(++id, 3, "")
+        waitForExpectationsWithTimeout(0, handler: nil)
+    }
 }
