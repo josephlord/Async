@@ -109,32 +109,6 @@ public class Async {
 	class func customQueue(#after: Double, queue: dispatch_queue_t, block: ()->()) -> AsyncInternal<(),()> {
 		return AsyncInternal.after(after, block: block, inQueue: queue, withArg:())
 	}
-
-
-//    class func main<R>(block: ()->R) -> AsyncInternal<(),R> {
-//		return AsyncInternal.async(block, inQueue: GCD.mainQueue(), withArgs:())
-//	}
-//	class func userInteractive<R>(block: ()->R) -> AsyncInternal<(),R> {
-//		return AsyncInternal.async(block, inQueue: GCD.userInteractiveQueue(), withArgs:())
-//	}
-//	class func userInitiated<R>(block: ()->R) -> AsyncInternal<(),R> {
-//		return AsyncInternal.async(block, inQueue: GCD.userInitiatedQueue(), withArgs:())
-//	}
-//	class func default_<R>(block: ()->R) -> AsyncInternal<(),R> {
-//		return AsyncInternal.async(block, inQueue: GCD.defaultQueue(), withArgs:())
-//	}
-//	class func utility<R>(block: ()->R) -> AsyncInternal<(),R> {
-//		return AsyncInternal.async(block, inQueue: GCD.utilityQueue(), withArgs:())
-//	}
-//	class func background<R>(block: ()->R) -> AsyncInternal<(),R> {
-//		return AsyncInternal.async(block, inQueue: GCD.backgroundQueue(), withArgs:())
-//	}
-//	class func customQueue<R>(queue: dispatch_queue_t, block: ()->R) -> AsyncInternal<(),R> {
-//		return AsyncInternal.async(block, inQueue: queue, withArgs:())
-//	}
-
-
-
 }
 
 public class AsyncPlus : Async {
@@ -373,11 +347,12 @@ extension AsyncInternal { // Regualar methods matching static once
 	/* cancel */
 
      func cancel(withValue:ReturnType) {
-        // I don't think that syncronisation is necessary. Any combination of multiple access
-        // should result in some boolean value and the cancel will only cancel
-        // if the execution has not yet started.
         isCancelled = true
-        returnedValueOpt = withValue
+        // Don't replace proper return value if already set.
+        // TODO: This must be syncronised with the returnedValue being set...ick
+        if returnedValueOpt == nil {
+            returnedValueOpt = withValue
+        }
     }
 
 	/* wait */
@@ -392,8 +367,11 @@ extension AsyncInternal { // Regualar methods matching static once
 			dispatch_group_wait(dgroup, DISPATCH_TIME_FOREVER)
 		}
 	}
-
-/*    func waitResult(seconds: Double = 0.0)->ReturnType? {
+    
+    // Waiting for result with timeout must accept an optional to be returned as
+    // nil if the timeout occurred. If the ReturnType is optional it may be an
+    // Optional Optional (??)
+    /*    func waitResult(seconds: Double = 0.0)->ReturnType? {
         
     }*/
     func waitResult()->ReturnType {
