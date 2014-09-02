@@ -124,8 +124,8 @@ extension Async { // Static methods
         let asyncBlock = Async()
         dispatch_group_enter(asyncBlock.dgroup)
         dispatch_after(time, queue){
-            let cancellableBlock = asyncBlock.cancellable(block)
-            cancellableBlock() // Compiler crashed in Beta6 when I just did asyncBlock.cancellable(block) directly.
+            let cancellableBlock = asyncBlock.cancellable(block)()
+//            cancellableBlock() // Compiler crashed in Beta6 when I just did asyncBlock.cancellable(block) directly.
             dispatch_group_leave(asyncBlock.dgroup)
         }
 		return asyncBlock
