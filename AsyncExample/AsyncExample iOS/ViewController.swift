@@ -14,11 +14,11 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 
 		// Async syntactic sugar
-		Async.background {
+		/*Async.background {
 			println("A: This is run on the background")
 		}.main {
 			println("B: This is run on the , after the previous block")
-		}
+		}*/
 
 		// Regular GCD
 		/*

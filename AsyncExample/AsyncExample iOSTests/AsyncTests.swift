@@ -59,7 +59,7 @@ class AsyncTests: XCTestCase {
 //		waitForExpectationsWithTimeout(1, handler: nil)
 //	}
     
-    
+/*
     
     func testWaitAccuracy() {
         // Not a pass fail test but an indication of the variation of the actual delay time of even high priority dispatches.
@@ -500,4 +500,21 @@ class AsyncTests: XCTestCase {
 		let timePassed = CFAbsoluteTimeGetCurrent() - date
 		XCTAssertLessThan(timePassed, upperTimeDelay, "Shouldn't wait \(upperTimeDelay) seconds before firing")
 	}
+  */  
+    func testChainedWithArgsAndReturns() {
+        let i = 1
+        let strArray = ["You", "say", "hello"]
+        let actualBlock:Int->Int = {
+                return $0 + 1
+        }
+//, block:actualBlock)
+        let block1 = Async.backgroundA(after: 0.3, withArgs: i, block: { (c:Int)->Int in
+            return c + 1 })
+
+        let block2 = block1.main {
+                return strArray[$0]
+        }
+        let waitBlockResult = block2.waitResult()
+        XCTAssertEqual(waitBlockResult, "hello")
+    }
 }
