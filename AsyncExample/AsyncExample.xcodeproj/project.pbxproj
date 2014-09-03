@@ -12,7 +12,6 @@
 		4EF830A01975952B00C5F0EE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF8309F1975952B00C5F0EE /* main.swift */; };
 		4EF830A21975952B00C5F0EE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830A11975952B00C5F0EE /* ViewController.swift */; };
 		4EF830A41975952B00C5F0EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830A31975952B00C5F0EE /* AppDelegate.swift */; };
-		4EF830A61975952B00C5F0EE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830A51975952B00C5F0EE /* Images.xcassets */; };
 		4EF830CB1975954B00C5F0EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830CA1975954B00C5F0EE /* AppDelegate.swift */; };
 		4EF830CD1975954B00C5F0EE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF830CC1975954B00C5F0EE /* ViewController.swift */; };
 		4EF830D01975954B00C5F0EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EF830CE1975954B00C5F0EE /* Main.storyboard */; };
@@ -81,7 +80,6 @@
 		4EF8309F1975952B00C5F0EE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		4EF830A11975952B00C5F0EE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		4EF830A31975952B00C5F0EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		4EF830A51975952B00C5F0EE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		4EF830AE1975952B00C5F0EE /* AsyncExample OS XTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AsyncExample OS XTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EF830B31975952B00C5F0EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EF830C61975954B00C5F0EE /* AsyncExample iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AsyncExample iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -157,7 +155,6 @@
 			children = (
 				4EF830A31975952B00C5F0EE /* AppDelegate.swift */,
 				4EF830A11975952B00C5F0EE /* ViewController.swift */,
-				4EF830A51975952B00C5F0EE /* Images.xcassets */,
 				4EF8309D1975952B00C5F0EE /* Supporting Files */,
 			);
 			path = "AsyncExample OS X";
@@ -370,7 +367,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4EF830A61975952B00C5F0EE /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
