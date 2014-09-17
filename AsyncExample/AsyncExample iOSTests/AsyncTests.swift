@@ -535,7 +535,7 @@ class AsyncTests: XCTestCase {
         
         block.wait()
         XCTAssertEqual(++id, 2, "")
-        waitForExpectationsWithTimeout(0, handler: nil)
+        waitForExpectationsWithTimeout(0.00001, handler: nil)
     }
 
     func testArgumentReturnClosure() {
@@ -554,7 +554,7 @@ class AsyncTests: XCTestCase {
         let returned_value = block.waitResult()
         XCTAssertEqual(returned_value, "birds")
         XCTAssertEqual(++id, 2, "")
-        waitForExpectationsWithTimeout(0, handler: nil)
+        waitForExpectationsWithTimeout(0.00001, handler: nil)
     }
 
     func testArgumentReturnChainedClosures() {
@@ -581,6 +581,58 @@ class AsyncTests: XCTestCase {
         let returned_value = block1.waitResult()
         XCTAssertEqual(returned_value, "snakes")
         XCTAssertEqual(++id, 3, "")
-        waitForExpectationsWithTimeout(0, handler: nil)
+        waitForExpectationsWithTimeout(0.00001, handler: nil)
+    }
+    
+    func testArgumentReturnChainedClosuresToVoid() {
+        var id = 0
+        let expectation0 = expectationWithDescription("first block did run")
+        let expectation1 = expectationWithDescription("second block did run")
+        let block0 = AsyncPlus.background((), block: { ()->Int in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 1, "")
+            expectation0.fulfill()
+            return 4
+        })
+        let block1 = block0.background({ (i:Int) in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 2, "")
+            XCTAssertEqual(i, 4)
+            expectation1.fulfill()
+        })
+        XCTAssertEqual(id, 0, "")
+        
+        block1.wait()
+        XCTAssertEqual(++id, 3, "")
+        waitForExpectationsWithTimeout(0000.1, handler: nil)
+    }
+    
+    func testTupleArgumentReturnChainedClosures() {
+        var id = 0
+        let expectation0 = expectationWithDescription("first block did run")
+        let expectation1 = expectationWithDescription("second block did run")
+        let block0 = AsyncPlus.background((), block: { ()->(Int,String) in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 1, "")
+            expectation0.fulfill()
+            return (4,"You")
+        })
+        let block1 = block0.background({ (i:Int, s:String)->String in
+            // Medium light work
+            println("Fib 12 = \(dumbFibonachi(12))")
+            XCTAssertEqual(++id, 2, "")
+            XCTAssertEqual(i, 4)
+            expectation1.fulfill()
+            return stringArray[i]
+        })
+        XCTAssertEqual(id, 0, "")
+        
+        let returned_value = block1.waitResult()
+        XCTAssertEqual(returned_value, "snakes")
+        XCTAssertEqual(++id, 3, "")
+        waitForExpectationsWithTimeout(0.00001, handler: nil)
     }
 }
