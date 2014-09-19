@@ -625,6 +625,7 @@ class AsyncTests: XCTestCase {
             println("Fib 12 = \(dumbFibonachi(12))")
             XCTAssertEqual(++id, 2, "")
             XCTAssertEqual(i, 4)
+            XCTAssertEqual(s, "You")
             expectation1.fulfill()
             return stringArray[i]
         })
