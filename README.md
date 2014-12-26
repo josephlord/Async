@@ -7,6 +7,8 @@ Syntactic sugar in Swift for asynchronous dispatches in Grand Central Dispatch (
 
 See [this article](http://blog.human-friendly.com/async-dot-legacy-swift-wrapper-for-grand-central-dispatch-ios7-and-os-x-10-dot-9-compatible) about how it works.
 
+Note that this particular branch also supports argument chaining. 
+
 **Async** sugar looks like this:
 ```swift
 Async.background {
